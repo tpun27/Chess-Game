@@ -23,7 +23,7 @@ ChessGame/.idea/**/gradle.xml
 ChessGame/.idea/**/libraries
 
 # CMake
-ChessGame/cmake-build-debug/
+cmake-build-debug/
 
 # Mongo Explorer plugin:
 ChessGame/.idea/**/mongoSettings.xml
@@ -37,10 +37,10 @@ ChessGame/.idea/**/mongoSettings.xml
 /out/
 
 # mpeltonen/sbt-idea plugin
-ChessGame/.idea_modules/
+.idea_modules/
 
 # JIRA plugin
-ChessGame/atlassian-ide-plugin.xml
+atlassian-ide-plugin.xml
 
 # Cursive Clojure plugin
 ChessGame/.idea/replstate.xml
@@ -54,13 +54,13 @@ fabric.properties
 ### Intellij Patch ###
 # Comment Reason: https://github.com/joeblau/gitignore.io/issues/186#issuecomment-215987721
 
-ChessGame/*.iml
-ChessGame/modules.xml
+*.iml
+modules.xml
 ChessGame/.idea/misc.xml
-ChessGame/*.ipr
+*.ipr
 
 # Sonarlint plugin
-ChessGame/.idea/sonarlint
+.idea/sonarlint
 
 # End of https://www.gitignore.io/api/intellij
 
