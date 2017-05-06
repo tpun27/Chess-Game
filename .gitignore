@@ -5,28 +5,28 @@
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 # User-specific stuff:
-.idea/**/workspace.xml
-.idea/**/tasks.xml
-.idea/dictionaries
+ChessGame/.idea/**/workspace.xml
+ChessGame/.idea/**/tasks.xml
+ChessGame/.idea/dictionaries
 
 # Sensitive or high-churn files:
-.idea/**/dataSources/
-.idea/**/dataSources.ids
-.idea/**/dataSources.xml
-.idea/**/dataSources.local.xml
-.idea/**/sqlDataSources.xml
-.idea/**/dynamic.xml
-.idea/**/uiDesigner.xml
+ChessGame/.idea/**/dataSources/
+ChessGame/.idea/**/dataSources.ids
+ChessGame/.idea/**/dataSources.xml
+ChessGame/.idea/**/dataSources.local.xml
+ChessGame/.idea/**/sqlDataSources.xml
+ChessGame/.idea/**/dynamic.xml
+ChessGame/.idea/**/uiDesigner.xml
 
 # Gradle:
-.idea/**/gradle.xml
-.idea/**/libraries
+ChessGame/.idea/**/gradle.xml
+ChessGame/.idea/**/libraries
 
 # CMake
-cmake-build-debug/
+ChessGame/cmake-build-debug/
 
 # Mongo Explorer plugin:
-.idea/**/mongoSettings.xml
+ChessGame/.idea/**/mongoSettings.xml
 
 ## File-based project format:
 *.iws
@@ -37,13 +37,13 @@ cmake-build-debug/
 /out/
 
 # mpeltonen/sbt-idea plugin
-.idea_modules/
+ChessGame/.idea_modules/
 
 # JIRA plugin
-atlassian-ide-plugin.xml
+ChessGame/atlassian-ide-plugin.xml
 
 # Cursive Clojure plugin
-.idea/replstate.xml
+ChessGame/.idea/replstate.xml
 
 # Crashlytics plugin (for Android Studio and IntelliJ)
 com_crashlytics_export_strings.xml
@@ -54,13 +54,13 @@ fabric.properties
 ### Intellij Patch ###
 # Comment Reason: https://github.com/joeblau/gitignore.io/issues/186#issuecomment-215987721
 
-*.iml
-modules.xml
-.idea/misc.xml
-*.ipr
+ChessGame/*.iml
+ChessGame/modules.xml
+ChessGame/.idea/misc.xml
+ChessGame/*.ipr
 
 # Sonarlint plugin
-.idea/sonarlint
+ChessGame/.idea/sonarlint
 
 # End of https://www.gitignore.io/api/intellij
 
