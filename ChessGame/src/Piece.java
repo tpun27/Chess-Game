@@ -17,11 +17,17 @@ public abstract class Piece {
     public static final char BLACK_QUEEN_SYMBOL = '\u265B';
     public static final char BLACK_KING_SYMBOL = '\u265A';
 
+    public enum PieceColorOptions {
+        WHITE, BLACK
+    }
+
     int posX;
     int posY;
     char pieceSymbol;
+    PieceColorOptions pieceColor;
 
     public Piece() {
+
     }
 
     public Piece(String initialPiecePos) {
@@ -63,4 +69,11 @@ public abstract class Piece {
     char getPieceSymbol() {
         return pieceSymbol;
     }
+
+    public void setPieceColor(PieceColorOptions pieceColor) {
+        this.pieceColor = pieceColor;
+    }
+
+    public abstract void setPieceSymbol();
+
 }

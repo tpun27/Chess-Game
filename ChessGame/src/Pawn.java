@@ -2,28 +2,27 @@
  * Class for Pawn
  */
 public class Pawn extends Piece {
-    char pieceColor;
 
-    public Pawn(char pieceColor) {
+    public Pawn() {
+
+    }
+
+    public Pawn(PieceColorOptions pieceColor) {
         setPieceColor(pieceColor);
         setPieceSymbol();
     }
 
-    public Pawn(char pieceColor, String initialPiecePos) {
+    public Pawn(PieceColorOptions pieceColor, String initialPiecePos) {
         setPieceColor(pieceColor);
         setPieceSymbol();
         this.posX = parsePosX(initialPiecePos);
         this.posY = parsePosY(initialPiecePos);
     }
 
-    public void setPieceColor(char pieceColor) {
-        this.pieceColor = pieceColor;
-    }
-
     public void setPieceSymbol() {
-        if (pieceColor == 'W')
+        if (pieceColor == PieceColorOptions.WHITE)
             pieceSymbol = WHITE_PAWN_SYMBOL;
-        else if (pieceColor == 'B')
+        else if (pieceColor == PieceColorOptions.BLACK)
             pieceSymbol = BLACK_PAWN_SYMBOL;
     }
 }
