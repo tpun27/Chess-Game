@@ -5,6 +5,7 @@ public class Board {
     public static final int VERTICAL_BOARD_LENGTH = 8;
     public static final int HORIZONTAL_BOARD_LENGTH = 8;
     public static final char DEFAULT_PIECE_SYMBOL = '\u2026';
+    public static final String X_POSITIONS = "abcdefgh";
 
     /*
      * Classic chess coordinates start from the botttom left of the grid
@@ -21,49 +22,41 @@ public class Board {
 
     public void initializeBoardPieces() {
         // white Pawns
-        Pawn wPawn1 = new Pawn(Piece.PieceColorOptions.WHITE, "a2");
-        initializePiece(wPawn1);
-        Pawn wPawn2 = new Pawn(Piece.PieceColorOptions.WHITE, "b2");
-        initializePiece(wPawn2);
-        Pawn wPawn3 = new Pawn(Piece.PieceColorOptions.WHITE, "c2");
-        initializePiece(wPawn3);
-        Pawn wPawn4 = new Pawn(Piece.PieceColorOptions.WHITE, "d2");
-        initializePiece(wPawn4);
-        Pawn wPawn5 = new Pawn(Piece.PieceColorOptions.WHITE, "e2");
-        initializePiece(wPawn5);
-        Pawn wPawn6 = new Pawn(Piece.PieceColorOptions.WHITE, "f2");
-        initializePiece(wPawn6);
-        Pawn wPawn7 = new Pawn(Piece.PieceColorOptions.WHITE, "g2");
-        initializePiece(wPawn7);
-        Pawn wPawn8 = new Pawn(Piece.PieceColorOptions.WHITE, "h2");
-        initializePiece(wPawn8);
+        initializePiece(new Pawn(), Piece.PieceColorOptions.WHITE, "a2");
+        initializePiece(new Pawn(), Piece.PieceColorOptions.WHITE, "b2");
+        initializePiece(new Pawn(), Piece.PieceColorOptions.WHITE, "c2");
+        initializePiece(new Pawn(), Piece.PieceColorOptions.WHITE, "d2");
+        initializePiece(new Pawn(), Piece.PieceColorOptions.WHITE, "e2");
+        initializePiece(new Pawn(), Piece.PieceColorOptions.WHITE, "f2");
+        initializePiece(new Pawn(), Piece.PieceColorOptions.WHITE, "g2");
+        initializePiece(new Pawn(), Piece.PieceColorOptions.WHITE, "h2");
 
         // black Pawns
-        Pawn bPawn1 = new Pawn(Piece.PieceColorOptions.BLACK, "a7");
-        initializePiece(bPawn1);
-        Pawn bPawn2 = new Pawn(Piece.PieceColorOptions.BLACK, "b7");
-        initializePiece(bPawn2);
-        Pawn bPawn3 = new Pawn(Piece.PieceColorOptions.BLACK, "c7");
-        initializePiece(bPawn3);
-        Pawn bPawn4 = new Pawn(Piece.PieceColorOptions.BLACK, "d7");
-        initializePiece(bPawn4);
-        Pawn bPawn5 = new Pawn(Piece.PieceColorOptions.BLACK, "e7");
-        initializePiece(bPawn5);
-        Pawn bPawn6 = new Pawn(Piece.PieceColorOptions.BLACK, "f7");
-        initializePiece(bPawn6);
-        Pawn bPawn7 = new Pawn(Piece.PieceColorOptions.BLACK, "g7");
-        initializePiece(bPawn7);
-        Pawn bPawn8 = new Pawn(Piece.PieceColorOptions.BLACK, "h7");
-        initializePiece(bPawn8);
+        initializePiece(new Pawn(), Piece.PieceColorOptions.BLACK, "a7");
+        initializePiece(new Pawn(), Piece.PieceColorOptions.BLACK, "b7");
+        initializePiece(new Pawn(), Piece.PieceColorOptions.BLACK, "c7");
+        initializePiece(new Pawn(), Piece.PieceColorOptions.BLACK, "d7");
+        initializePiece(new Pawn(), Piece.PieceColorOptions.BLACK, "e7");
+        initializePiece(new Pawn(), Piece.PieceColorOptions.BLACK, "f7");
+        initializePiece(new Pawn(), Piece.PieceColorOptions.BLACK, "g7");
+        initializePiece(new Pawn(), Piece.PieceColorOptions.BLACK, "h7");
+
+        // Knights
+        initializePiece(new Knight(), Piece.PieceColorOptions.WHITE, "b1");
+        initializePiece(new Knight(), Piece.PieceColorOptions.WHITE, "g1");
+        initializePiece(new Knight(), Piece.PieceColorOptions.BLACK, "b8");
+        initializePiece(new Knight(), Piece.PieceColorOptions.BLACK, "g8");
     }
 
-    public void initializePiece(Piece piece) {
+    public void initializePiece(Piece piece, Piece.PieceColorOptions pieceColor, String initialPiecePos) {
+        piece.setPieceColor(pieceColor);
+        piece.setPiecePosition(initialPiecePos);
+        piece.setPieceSymbol();
         boardArray[piece.getPosY()][piece.getPosX()] = piece;
-        //System.out.println(piece.getPosX() + " " + piece.getPosY());
     }
 
     public void printBoard() {
-        for (int i = 0; i < VERTICAL_BOARD_LENGTH; i++) {
+        for (int i = VERTICAL_BOARD_LENGTH - 1; i >= 0; i--) {
             for (int j = 0; j < HORIZONTAL_BOARD_LENGTH; j++) {
                 if (boardArray[i][j] == null) {
                     System.out.print(DEFAULT_PIECE_SYMBOL + " ");
@@ -74,5 +67,31 @@ public class Board {
             }
             System.out.println();
         }
+        System.out.println();
+    }
+
+    public void movePiece(String initialPiecePos, String newPiecePos) {
+        Piece piece = getPieceFromPosition(initialPiecePos);
+        piece.setPiecePosition(newPiecePos);
+        boardArray[piece.getPosY()][piece.getPosX()] = piece;
+        removePieceFromBoard(initialPiecePos);
+    }
+
+    public Piece getPieceFromPosition(String piecePos) {
+        return boardArray[parsePosY(piecePos)][parsePosX(piecePos)];
+    }
+
+    public void removePieceFromBoard(String piecePos) {
+        boardArray[parsePosY(piecePos)][parsePosX(piecePos)] = null;
+    }
+
+    int parsePosX(String piecePos) {
+        char xChar = piecePos.charAt(0);
+        return X_POSITIONS.indexOf(xChar);
+    }
+
+    int parsePosY(String piecePos) {
+        char yChar = piecePos.charAt(1);
+        return Character.getNumericValue(yChar) - 1;
     }
 }
