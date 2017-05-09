@@ -4,11 +4,9 @@
 public abstract class Piece {
 
     public static final String X_POSITIONS = "abcdefgh";
-    public static final char WHITE_BISHOP_SYMBOL = '\u2657';
     public static final char WHITE_ROOK_SYMBOL = '\u2656';
     public static final char WHITE_QUEEN_SYMBOL = '\u2655';
     public static final char WHITE_KING_SYMBOL = '\u2654';
-    public static final char BLACK_BISHOP_SYMBOL = '\u265D';
     public static final char BLACK_ROOK_SYMBOL = '\u265C';
     public static final char BLACK_QUEEN_SYMBOL = '\u265B';
     public static final char BLACK_KING_SYMBOL = '\u265A';
