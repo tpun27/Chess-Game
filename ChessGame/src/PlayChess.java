@@ -19,11 +19,14 @@ public class PlayChess {
         chessBoard.movePiece("f3", "h2");
         chessBoard.movePiece("f4", "h4");
         chessBoard.movePiece("f1", "b5");
-
-        Knight knight = new Knight(Piece.PieceColorOptions.WHITE, "d4");
-        knight.printPossibleMoves("b1");
-        System.out.println(chessBoard.overlapOwnPiece(Piece.PieceColorOptions.BLACK, "a7"));
-        System.out.println(chessBoard.isDiagonalPath("a1", "h8"));
-        System.out.println(chessBoard.isHorizontalOrVertPath("a1","h1"));
+        chessBoard.movePiece("h1", "h2");
+        chessBoard.movePiece("h1", "h3");
+        chessBoard.movePiece("d1", "g1");
+        chessBoard.movePiece("d8", "a5");
+        chessBoard.movePiece("e1", "c3");
+        chessBoard.movePiece("e1", "e4");
+        chessBoard.movePiece("e8", "b8");
+        chessBoard.movePiece("b1", "e2");
+        chessBoard.movePiece("c6", "e4");
     }
 }
