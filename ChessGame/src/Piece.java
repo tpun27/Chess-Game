@@ -49,6 +49,10 @@ public abstract class Piece {
         return posY;
     }
 
+    PieceColorOptions getPieceColor() {
+        return pieceColor;
+    }
+
     char getPieceSymbol() {
         return pieceSymbol;
     }

@@ -95,45 +95,57 @@ public class Board {
 
     public void movePiece(String initialPiecePos, String newPiecePos) {
         Piece piece = getPieceFromPosition(initialPiecePos);
+        if (canMovePiece(initialPiecePos, newPiecePos)) {
+            piece.setPiecePosition(newPiecePos);
+            boardArray[piece.getPosY()][piece.getPosX()] = piece;
+            removePieceFromBoard(initialPiecePos);
+        }
+    }
 
-        if (isOverlapOwnPiece(piece.pieceColor, newPiecePos)) {
+    public boolean canMovePiece(String initialPiecePos, String newPiecePos) {
+        Piece piece = getPieceFromPosition(initialPiecePos);
+
+        if (isContainsOtherPiece(piece.pieceColor, newPiecePos)) {
             System.out.println("Invalid Move: You already have a piece at " + newPiecePos + "!");
-            return;
+            return false;
+        }
+
+        if (piece instanceof Pawn) {
+            if (!isValidPawnMove(piece.getPieceColor(), initialPiecePos, newPiecePos)) {
+                return false;
+            }
         }
 
         if (piece instanceof Knight) {
             if (!isValidKnightMove(initialPiecePos, newPiecePos)) {
-                return;
+                return false;
             }
         }
 
         if (piece instanceof Bishop) {
             if (!isValidBishopMove(initialPiecePos, newPiecePos)) {
-                return;
+                return false;
             }
         }
 
         if (piece instanceof Rook) {
             if (!isValidRookMove(initialPiecePos, newPiecePos)) {
-                return;
+                return false;
             }
         }
 
         if (piece instanceof Queen) {
             if (!isValidQueenMove(initialPiecePos, newPiecePos)) {
-                return;
+                return false;
             }
         }
 
         if (piece instanceof King) {
             if (!isValidKingMove(initialPiecePos, newPiecePos)) {
-                return;
+                return false;
             }
         }
-
-        piece.setPiecePosition(newPiecePos);
-        boardArray[piece.getPosY()][piece.getPosX()] = piece;
-        removePieceFromBoard(initialPiecePos);
+        return true;
     }
 
     public Piece getPieceFromPosition(String piecePos) {
@@ -154,7 +166,14 @@ public class Board {
         return Character.getNumericValue(yChar) - 1;
     }
 
-    public boolean isOverlapOwnPiece(Piece.PieceColorOptions pieceColor, String newPiecePos) {
+    String convertToChessNotation(int posY, int posX) {
+        String chessString = "";
+        chessString += X_POSITIONS.charAt(posX);
+        chessString += Integer.toString(posY+1);
+        return chessString;
+    }
+
+    public boolean isContainsOtherPiece(Piece.PieceColorOptions pieceColor, String newPiecePos) {
         Piece overlapPiece = boardArray[parsePosY(newPiecePos)][parsePosX(newPiecePos)];
         if (overlapPiece != null) {
             if (overlapPiece.pieceColor == pieceColor) {
@@ -267,6 +286,78 @@ public class Board {
                 return true;
             }
         }
+        return false;
+    }
+
+    public boolean isInCheck(String kingPos) {
+        Piece kingPiece, oppPiece;
+        Piece.PieceColorOptions kingColor;
+        String initPos;
+
+        kingPiece = getPieceFromPosition(kingPos);
+        kingColor = kingPiece.getPieceColor();
+
+        for (int i = 0; i < VERTICAL_BOARD_LENGTH; i++) {
+            for (int j = 0; j < HORIZONTAL_BOARD_LENGTH; j++) {
+                System.out.println(i + "," + j + " " + convertToChessNotation(i,j));
+                oppPiece = boardArray[i][j];
+                if (oppPiece != null && oppPiece.getPieceColor() != kingColor) {
+                    initPos = convertToChessNotation(i,j);
+                    if (canMovePiece(initPos, kingPos))
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean isValidPawnMove(Piece.PieceColorOptions pieceColor, String initialPiecePos, String newPiecePos) {
+        int initPosX, initPosY, newPosX, newPosY, posXDiff, posYDiff, forwardMultiplier;
+
+        initPosX = parsePosX(initialPiecePos);
+        initPosY = parsePosY(initialPiecePos);
+        newPosX = parsePosX(newPiecePos);
+        newPosY = parsePosY(newPiecePos);
+        posXDiff = newPosX - initPosX;
+        posYDiff = newPosY - initPosY;
+
+        forwardMultiplier = 1;
+        if (pieceColor == Piece.PieceColorOptions.BLACK) {
+            forwardMultiplier *= -1;
+        }
+
+        // check if Pawn moves forward vertically one space (including diagonals)
+        if (posYDiff == forwardMultiplier) {
+            Piece piece = getPieceFromPosition(newPiecePos);
+            // diagonal move valid if capturing opponent's piece
+            if (posXDiff == 1 || posXDiff == -1) {
+                if (piece != null && piece.pieceColor != pieceColor) {
+                    return true;
+                }
+            }
+            // if not a diagonal move, make sure space is unoccupied
+            if (posXDiff == 0) {
+                if (piece == null) {
+                    return true;
+                }
+            }
+        }
+
+        // if Pawn moves two spaces forward (no diagonals)
+        if (posXDiff == 0 && posYDiff == 2 * forwardMultiplier) {
+            int forwardPosY1 = initPosY + forwardMultiplier;
+            int forwardPosY2 = initPosY + 2 * forwardMultiplier;
+            // Pawns can only move two spaces from their starting row
+            if ((pieceColor == Piece.PieceColorOptions.WHITE && initPosY == 1)
+                || (pieceColor == Piece.PieceColorOptions.BLACK && initPosY == 6)) {
+                // check if forward spaces are unoccupied
+                if (boardArray[forwardPosY1][initPosX] == null && boardArray[forwardPosY2][initPosX] == null) {
+                    return true;
+                }
+            }
+        }
+
+        System.out.println("Invalid move: Pawn cannot move there!");
         return false;
     }
 
