@@ -173,8 +173,15 @@ public class Board {
         return chessString;
     }
 
+    public boolean isWithinBoard(int boardPosVal) {
+        if (boardPosVal >= 0 && boardPosVal < VERTICAL_BOARD_LENGTH) {
+            return true;
+        }
+        return false;
+    }
+
     public boolean isContainsOtherPiece(Piece.PieceColorOptions pieceColor, String newPiecePos) {
-        Piece overlapPiece = boardArray[parsePosY(newPiecePos)][parsePosX(newPiecePos)];
+        Piece overlapPiece = getPieceFromPosition(newPiecePos);
         if (overlapPiece != null) {
             if (overlapPiece.pieceColor == pieceColor) {
                 return true;
@@ -270,25 +277,6 @@ public class Board {
         return true;
     }
 
-    public boolean isValidLShapedMove(String initialPiecePos, String newPiecePos) {
-        int initPosX, initPosY, newPosX, newPosY, absPosXDiff, absPosYDiff;
-
-        initPosX = parsePosX(initialPiecePos);
-        initPosY = parsePosY(initialPiecePos);
-        newPosX = parsePosX(newPiecePos);
-        newPosY = parsePosY(newPiecePos);
-
-        absPosXDiff = Math.abs(newPosX-initPosX);
-        absPosYDiff = Math.abs(newPosY-initPosY);
-
-        if (absPosXDiff + absPosYDiff == 3) {
-            if ((absPosXDiff == 1 || absPosYDiff == 1) && (absPosXDiff == 2 || absPosYDiff == 2)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public boolean isInCheck(String kingPos) {
         Piece kingPiece, oppPiece;
         Piece.PieceColorOptions kingColor;
@@ -303,8 +291,50 @@ public class Board {
                 oppPiece = boardArray[i][j];
                 if (oppPiece != null && oppPiece.getPieceColor() != kingColor) {
                     initPos = convertToChessNotation(i,j);
+                    // the King is in check if an opposing piece can move to it's position
                     if (canMovePiece(initPos, kingPos))
                         return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean isKingMoveable(String kingPos) {
+        Piece kingPiece, tempPieceRef;
+        Piece.PieceColorOptions kingColor;
+        String newPos;
+        int initX, initY, newX, newY, possibleVals;
+
+        kingPiece = getPieceFromPosition(kingPos);
+        kingColor = kingPiece.getPieceColor();
+        // to calculate possible King moves, add -1, 0, or 1 to its vertical and/or horizontal position
+        possibleVals = 3;
+        initX = parsePosX(kingPos);
+        initY = parsePosY(kingPos);
+
+        for (int i = 0; i < possibleVals; i++) {
+            newX = initX + i - 1;
+            if (isWithinBoard(newX)) {
+                for (int j = 0; j < possibleVals; j++) {
+                    newY = initY + j - 1;
+                    if (isWithinBoard(newY)) {
+                        newPos = convertToChessNotation(newY, newX);
+                        // determine if the King can move to the new position and if so, return true
+                        if (!isContainsOtherPiece(kingColor, newPos)) {
+                            tempPieceRef = getPieceFromPosition(newPos);
+                            movePiece(kingPos, newPos);
+                            if (!isInCheck(newPos)) {
+                                movePiece(newPos, kingPos);
+                                boardArray[newY][newX] = tempPieceRef;
+                                return true;
+                            }
+                            else {
+                                movePiece(newPos, kingPos);
+                                boardArray[newY][newX] = tempPieceRef;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -362,11 +392,23 @@ public class Board {
     }
 
     public boolean isValidKnightMove(String initialPiecePos, String newPiecePos) {
-        if (!isValidLShapedMove(initialPiecePos, newPiecePos)) {
-            System.out.println("Invalid Move: Not an L-shaped path!");
-            return false;
+        int initPosX, initPosY, newPosX, newPosY, absPosXDiff, absPosYDiff;
+
+        initPosX = parsePosX(initialPiecePos);
+        initPosY = parsePosY(initialPiecePos);
+        newPosX = parsePosX(newPiecePos);
+        newPosY = parsePosY(newPiecePos);
+
+        absPosXDiff = Math.abs(newPosX-initPosX);
+        absPosYDiff = Math.abs(newPosY-initPosY);
+
+        if (absPosXDiff + absPosYDiff == 3) {
+            if ((absPosXDiff == 1 || absPosYDiff == 1) && (absPosXDiff == 2 || absPosYDiff == 2)) {
+                return true;
+            }
         }
-        return true;
+        System.out.println("Invalid Move: Not an L-shaped path!");
+        return false;
     }
 
     public boolean isValidBishopMove(String initialPiecePos, String newPiecePos) {

@@ -16,11 +16,13 @@ public class PlayChess {
         chessBoard.movePiece("c2", "c4");
         chessBoard.movePiece("g8", "f6");
         chessBoard.printBoard();
-        System.out.println(chessBoard.isInCheck("e1"));
+        //System.out.println(chessBoard.isInCheck("e1"));
         System.out.println();
         chessBoard.movePiece("b1", "c3");
         chessBoard.movePiece("c3", "b5");
         chessBoard.movePiece("b5", "c7");
-        System.out.println(chessBoard.isInCheck("e8"));
+        //System.out.println(chessBoard.isInCheck("e8"));
+        System.out.println();
+        System.out.println(chessBoard.isKingMoveable("e1"));
     }
 }
