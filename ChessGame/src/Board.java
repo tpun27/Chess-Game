@@ -216,7 +216,7 @@ public class Board {
 
         btwnPosX = initPosX;
         btwnPosY = initPosY;
-        for (int i = 0; i <= spacesToVerify; i++) {
+        for (int i = 0; i < spacesToVerify; i++) {
             btwnPosX += xIncrement;
             btwnPosY += yIncrement;
             Piece piece = boardArray[btwnPosY][btwnPosX];
@@ -339,6 +339,129 @@ public class Board {
             }
         }
         return false;
+    }
+
+    public boolean canBlockCheck(String oppPos, String kingPos) {
+        Piece oppPiece, ownPiece, kingPiece;
+        Piece.PieceColorOptions kingColor;
+        String[] blockSpaces;
+        int kingPosX, kingPosY, oppPosX, oppPosY, diffX, diffY;
+        int incrementX, incrementY, blockSpaceCounter;
+
+        oppPiece = getPieceFromPosition(oppPos);
+        kingPiece = getPieceFromPosition(kingPos);
+        kingColor = kingPiece.getPieceColor();
+        blockSpaces = new String[VERTICAL_BOARD_LENGTH];
+        kingPosX = parsePosX(kingPos);
+        kingPosY = parsePosY(kingPos);
+        oppPosX = parsePosX(oppPos);
+        oppPosY = parsePosY(oppPos);
+        diffX = oppPosX - kingPosX;
+        diffY = oppPosY - kingPosY;
+        blockSpaceCounter = 0;
+
+        // calculate spaces that will successfully block the threatening piece
+        if (oppPiece instanceof Pawn || oppPiece instanceof Knight) {
+            blockSpaces[blockSpaceCounter] = oppPos;
+            blockSpaceCounter++;
+        }
+        else {
+            // diagonal threat (Bishop or Queen)
+            if (Math.abs(diffX) == Math.abs(diffY)) {
+                incrementX = diffX / Math.abs(diffX);
+                incrementY = diffY / Math.abs(diffY);
+                for (int i = 1; i <= Math.abs(diffX); i++) {
+                    int tempPosY = kingPosY + incrementY * i;
+                    int tempPosX = kingPosX + incrementX * i;
+                    String tempPos = convertToChessNotation(tempPosY, tempPosX);
+                    blockSpaces[blockSpaceCounter] = tempPos;
+                    blockSpaceCounter++;
+                }
+            }
+            // vertical/horizontal threat (Rook or Queen)
+            else {
+                if (diffX == 0) {
+                    incrementY = diffY / Math.abs(diffY);
+                    for (int i = 1; i <= Math.abs(diffY); i++) {
+                        int tempPosY = kingPosY + incrementY * i;
+                        int tempPosX = kingPosX;
+                        String tempPos = convertToChessNotation(tempPosY, tempPosX);
+                        blockSpaces[blockSpaceCounter] = tempPos;
+                        blockSpaceCounter++;
+                    }
+                }
+                else if (diffY == 0) {
+                    incrementX = diffX / Math.abs(diffX);
+                    for (int i = 1; i <= Math.abs(diffX); i++) {
+                        int tempPosY = kingPosY;
+                        int tempPosX = kingPosX + incrementX * i;
+                        String tempPos = convertToChessNotation(tempPosY, tempPosX);
+                        blockSpaces[blockSpaceCounter] = tempPos;
+                        blockSpaceCounter++;
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < VERTICAL_BOARD_LENGTH; i++) {
+            for (int j = 0; j < HORIZONTAL_BOARD_LENGTH; j++) {
+                ownPiece = boardArray[i][j];
+                if (ownPiece != null && ownPiece.getPieceColor() == kingColor) {
+                    String ownPiecePos = convertToChessNotation(j, i);
+                    for (int k = 0; k < blockSpaceCounter; k++) {
+                        if (canMovePiece(ownPiecePos, blockSpaces[k])) {
+                            // ensure that moving the piece to block does not still put King in check
+                            Piece tempPieceRef = getPieceFromPosition(blockSpaces[k]);
+                            movePiece(ownPiecePos, blockSpaces[k]);
+                            if (!isInCheck(kingPos)) {
+                                movePiece(blockSpaces[k], ownPiecePos);
+                                boardArray[parsePosY(blockSpaces[k])][parsePosY(blockSpaces[k])] = tempPieceRef;
+                                return true;
+                            }
+                            else {
+                                movePiece(blockSpaces[k], ownPiecePos);
+                                boardArray[parsePosY(blockSpaces[k])][parsePosY(blockSpaces[k])] = tempPieceRef;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean isInCheckMate(String kingPos) {
+        if (isKingMoveable(kingPos)) {
+            return false;
+        }
+
+        // check if King is in check and another Piece can block the check
+        Piece kingPiece, oppPiece;
+        Piece.PieceColorOptions kingColor;
+        String initPos;
+
+        kingPiece = getPieceFromPosition(kingPos);
+        kingColor = kingPiece.getPieceColor();
+
+        for (int i = 0; i < VERTICAL_BOARD_LENGTH; i++) {
+            for (int j = 0; j < HORIZONTAL_BOARD_LENGTH; j++) {
+                //System.out.println(i + "," + j + " " + convertToChessNotation(i,j));
+                oppPiece = boardArray[i][j];
+                if (oppPiece != null && oppPiece.getPieceColor() != kingColor) {
+                    initPos = convertToChessNotation(j,i);
+                    // the King is in check if an opposing piece can move to it's position
+                    if (canMovePiece(initPos, kingPos)) {
+                        if (canBlockCheck(initPos, kingPos)) {
+                            return false;
+                        }
+                        else {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     public boolean isValidPawnMove(Piece.PieceColorOptions pieceColor, String initialPiecePos, String newPiecePos) {

@@ -23,6 +23,15 @@ public class PlayChess {
         chessBoard.movePiece("b5", "c7");
         //System.out.println(chessBoard.isInCheck("e8"));
         System.out.println();
-        System.out.println(chessBoard.isKingMoveable("e1"));
+        //System.out.println(chessBoard.isKingMoveable("e1"));
+        chessBoard.printBoard();
+        //System.out.println(chessBoard.isInCheckMate("e8"));
+        chessBoard.movePiece("d1", "a4");
+        chessBoard.movePiece("e8", "e7");
+        chessBoard.movePiece("f3", "e5");
+        chessBoard.movePiece("a4", "b4");
+        System.out.println(chessBoard.isInCheck("e7"));
+        System.out.println(chessBoard.isInCheckMate("e7"));
+        chessBoard.printBoard();
     }
 }
