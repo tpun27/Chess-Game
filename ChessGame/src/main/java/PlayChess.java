@@ -4,6 +4,7 @@
 public class PlayChess {
     public static void main(String args[]) {
         Board chessBoard = new Board();
+        chessBoard.initializeBoardPieces();
         chessBoard.printBoard();
         chessBoard.movePiece("d2", "d4");
         chessBoard.movePiece("d7", "d5");

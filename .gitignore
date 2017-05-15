@@ -8,6 +8,8 @@
 ChessGame/.idea/**/workspace.xml
 ChessGame/.idea/**/tasks.xml
 ChessGame/.idea/dictionaries
+ChessGame/.idea/*
+.idea/*
 
 # Sensitive or high-churn files:
 ChessGame/.idea/**/dataSources/
@@ -92,3 +94,21 @@ ChessGame/.idea/misc.xml
 hs_err_pid*
 
 # End of https://www.gitignore.io/api/java
+
+### Gradle ###
+.gradle
+/build/
+
+# Ignore Gradle GUI config
+gradle-app.setting
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+
+# Cache of project
+.gradletasknamecache
+
+# # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
+# gradle/wrapper/gradle-wrapper.properties
+
+# End of https://www.gitignore.io/api/gradle

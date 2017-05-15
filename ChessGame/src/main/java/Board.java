@@ -20,7 +20,7 @@ public class Board {
 
     public Board() {
         boardArray = new Piece[VERTICAL_BOARD_LENGTH][HORIZONTAL_BOARD_LENGTH];
-        initializeBoardPieces();
+        //initializeBoardPieces();
     }
 
     public void initializeBoardPieces() {
