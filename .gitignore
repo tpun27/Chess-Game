@@ -36,7 +36,7 @@ ChessGame/.idea/**/mongoSettings.xml
 ## Plugin-specific files:
 
 # IntelliJ
-/out/
+ChessGame/out/
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/

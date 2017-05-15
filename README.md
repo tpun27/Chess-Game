@@ -1,23 +1,18 @@
 # Chess-Game
 
-8 ║♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜
-7 ║♟ ♟ ♟ ♟ ♟ ♟ ♟ ♟
-6 ║… … … … … … … …
-5 ║… … … … … … … …
-4 ║… … … … … … … …
-3 ║… … ♘ … … … … …
-2 ║♙ ♙ ♙ ♙ ♙ ♙ ♙ ♙
-1 ║♖ … ♗ ♕ ♔ ♗ ♘ ♖
-—╚═══════════════
-——a   b   c   d   e   f   g   h
+###### Agenda:
+1. Write Java, Objected Oriented Programming, Exception Handling, Singleton, Interfaces/Inheritance 1
+2. Write Test cases 2
 
-Agenda:
-	1. Write Java, Objected Oriented Programming, Exception Handling, Singleton, Interfaces/Inheritance
-	2. Write Test cases
-	
+###### Gradle:
+1. Follow the steps listed in https://gradle.org/install#unpack to install gradle 1
+2. Close Intellij 2
+3. Manually remove Chess-Game/ChessGame/ChessGame.iml 3
+4. Open Intellij -> New -> Modules from existing sources -> Select ChessGame 4
+5. Import module from external modules -> Select Gradle -> Select next, next until import window closes 5
+6. Under the Build tab from the top menu -> Select Build Project 6
 
-Test cases:
-
+```java
 //1. Handling piece movements:
 //Initialize players
 Player one = new Player("one");
@@ -52,3 +47,4 @@ chessGame.initializePiece(new King(), one, "b7");
 chessGame.initializePiece(new King(), two, "a8");
 chessGame.start();
 // Should notify user that it is checkmate
+```
