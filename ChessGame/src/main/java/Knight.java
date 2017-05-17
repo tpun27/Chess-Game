@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-
 /**
  * Class for Knight
  */
@@ -11,17 +9,8 @@ public class Knight extends Piece {
 
     }
 
-    public Knight(Piece.PieceColorOptions pieceColor) {
-        super(pieceColor);
-        setPieceSymbol();
-    }
-
-    public Knight(String initialPiecePos) {
-        super(initialPiecePos);
-    }
-
-    public Knight(Piece.PieceColorOptions pieceColor, String initialPiecePos) {
-        super(pieceColor, initialPiecePos);
+    public Knight(Piece.PieceColorOptions pieceColor, String pieceStringPos) {
+        super(pieceColor, pieceStringPos);
         setPieceSymbol();
     }
 

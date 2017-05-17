@@ -8,10 +8,9 @@ public class Board {
     public static final int VERTICAL_BOARD_LENGTH = 8;
     public static final int HORIZONTAL_BOARD_LENGTH = 8;
     public static final char DEFAULT_PIECE_SYMBOL = '\u2026';
-    public static final String X_POSITIONS = "abcdefgh";
 
     /*
-     * Classic chess coordinates start from the botttom left of the grid
+     * Classic chess coordinates start from the bottom left of the grid
      * and increase towards the top right
      *
      * 2-Dimensional arrays start from the top left and increase towards the bottom right
@@ -20,7 +19,7 @@ public class Board {
 
     public Board() {
         boardArray = new Piece[VERTICAL_BOARD_LENGTH][HORIZONTAL_BOARD_LENGTH];
-        //initializeBoardPieces();
+        initializeBoardPieces();
     }
 
     public void initializeBoardPieces() {
@@ -71,27 +70,38 @@ public class Board {
         initializePiece(new King(), Piece.PieceColorOptions.BLACK, "e8");
     }
 
-    public void initializePiece(Piece piece, Piece.PieceColorOptions pieceColor, String initialPiecePos) {
+    public void initializePiece(Piece piece, Piece.PieceColorOptions pieceColor, String pieceStringPos) {
+        Coordinate pieceCoordinate;
+
         piece.setPieceColor(pieceColor);
-        piece.setPiecePosition(initialPiecePos);
+        piece.setPieceCoordinate(pieceStringPos);
         piece.setPieceSymbol();
-        boardArray[piece.getPosY()][piece.getPosX()] = piece;
+
+        pieceCoordinate = piece.getPieceCoordinate();
+        boardArray[pieceCoordinate.getPosY()][pieceCoordinate.getPosX()] = piece;
     }
 
     public void printBoard() {
+        Piece piece;
+
         for (int i = VERTICAL_BOARD_LENGTH - 1; i >= 0; i--) {
             for (int j = 0; j < HORIZONTAL_BOARD_LENGTH; j++) {
-                if (boardArray[i][j] == null) {
+                piece = boardArray[i][j];
+                if (piece == null) {
                     System.out.print(DEFAULT_PIECE_SYMBOL + " ");
                 }
                 else {
-                    System.out.print(boardArray[i][j].getPieceSymbol() + " ");
+                    System.out.print(piece.getPieceSymbol() + " ");
                 }
             }
             System.out.println();
         }
         System.out.println();
     }
+
+    /*
+     * Up to here in refactoring
+     */
 
     public void movePiece(String initialPiecePos, String newPiecePos) {
         Piece piece = getPieceFromPosition(initialPiecePos);

@@ -9,17 +9,8 @@ public class Bishop extends Piece{
 
     }
 
-    public Bishop(Piece.PieceColorOptions pieceColor) {
-        super(pieceColor);
-        setPieceSymbol();
-    }
-
-    public Bishop(String initialPiecePos) {
-        super(initialPiecePos);
-    }
-
-    public Bishop(Piece.PieceColorOptions pieceColor, String initialPiecePos) {
-        super(pieceColor, initialPiecePos);
+    public Bishop(Piece.PieceColorOptions pieceColor, String pieceStringPos) {
+        super(pieceColor, pieceStringPos);
         setPieceSymbol();
     }
 

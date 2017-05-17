@@ -4,79 +4,106 @@
 public class Coordinate {
     public static final String X_POSITIONS = "abcdefgh";
 
-    int posX;
-    int posY;
-    String chessString;
+    private int posX;
+    private int posY;
+    private String chessStringPos;
 
     public Coordinate() {
 
+    }
+
+    public Coordinate(String chessStringPos) {
+        setChessStringPos(chessStringPos);
     }
 
     public Coordinate(int posX, int posY) {
         setPosXY(posX, posY);
     }
 
-    public Coordinate(String chessString) {
-        setChessString(chessString);
+    public void setChessStringPos(String chessStringPos) {
+        if (isWithinBoard(chessStringPos)) {
+            this.chessStringPos = chessStringPos;
+            reCalcChessIntPos();
+        }
     }
 
-    public int parsePosX(String chessString) {
-        char xChar = chessString.charAt(0);
+    public void setPosXY(int posX, int posY) {
+        if (isWithinBoard(posX) && isWithinBoard(posY)) {
+            this.posX = posX;
+            this.posY = posY;
+            reCalcChessStrPos();
+        }
+    }
+
+    private void reCalcChessStrPos() {
+        chessStringPos = convertToChessNotation(posX, posY);
+    }
+
+    private void reCalcChessIntPos() {
+        posX = parsePosX(chessStringPos);
+        posY = parsePosY(chessStringPos);
+    }
+
+    private String convertToChessNotation(int posX, int posY) {
+        String tempStringPos = "";
+        tempStringPos += X_POSITIONS.charAt(posX);
+        tempStringPos += Integer.toString(posY+1);
+        return tempStringPos;
+    }
+
+    private int parsePosX(String chessStringPos) {
+        char xChar = chessStringPos.charAt(0);
         return X_POSITIONS.indexOf(xChar);
     }
 
-    public int parsePosY(String chessString) {
-        char yChar = chessString.charAt(1);
+    private int parsePosY(String chessStringPos) {
+        char yChar = chessStringPos.charAt(1);
         return Character.getNumericValue(yChar) - 1;
     }
 
-    public String convertToChessNotation(int posX, int posY) {
-        String tempString = "";
-        tempString += X_POSITIONS.charAt(posX);
-        tempString += Integer.toString(posY+1);
-        return tempString;
+    private boolean isWithinBoard(int posVal) {
+        if (posVal >= 0 && posVal <= 7) {
+            return true;
+        }
+        return false;
+    }
+
+    private  boolean isWithinBoard(String chessStringPos) {
+        if (chessStringPos.length() != 2) {
+            return false;
+        }
+
+        char tempX, tempY;
+        tempX = chessStringPos.charAt(0);
+        tempY = chessStringPos.charAt(1);
+
+        if (X_POSITIONS.indexOf(tempX) == -1) {
+            return false;
+        }
+
+        if (tempY < '1' || tempY > '8') {
+            return false;
+        }
+        return true;
     }
 
     public void addVals(int xIncr, int yIncr) {
-        posX += xIncr;
-        posY += yIncr;
-    }
+        int tempX, tempY;
 
-    public void reCalcChessStr() {
-        chessString = convertToChessNotation(posX, posY);
-    }
-
-    public void reCalcChessPos() {
-        posX = parsePosX(chessString);
-        posY = parsePosY(chessString);
+        tempX = posX + xIncr;
+        tempY = posY + yIncr;
+        setPosXY(tempX, tempY);
     }
 
     public int getPosX() {
         return posX;
     }
 
-    public void setPosX(int posX) {
-        this.posX = posX;
-    }
-
     public int getPosY() {
         return posY;
     }
 
-    public void setPosY(int posY) {
-        this.posY = posY;
-    }
-
-    public String getChessString() {
-        return chessString;
-    }
-
-    public void setChessString(String chessString) {
-        this.chessString = chessString;
-    }
-
-    public void setPosXY(int posX, int posY) {
-        setPosX(posX);
-        setPosY(posY);
+    public String getChessStringPos() {
+        return chessStringPos;
     }
 }

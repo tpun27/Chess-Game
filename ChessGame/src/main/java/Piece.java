@@ -3,67 +3,45 @@
  */
 public abstract class Piece {
 
-    public static final String X_POSITIONS = "abcdefgh";
-
     public enum PieceColorOptions {
         WHITE, BLACK
     }
 
-    int posX;
-    int posY;
-    char pieceSymbol;
-    PieceColorOptions pieceColor;
+    protected Coordinate pieceCoordinate;
+    protected PieceColorOptions pieceColor;
+    protected char pieceSymbol;
 
     public Piece() {
 
     }
 
-    public Piece(PieceColorOptions pieceColor) {
+    public Piece(PieceColorOptions pieceColor, String pieceStringPos) {
         setPieceColor(pieceColor);
+        setPieceCoordinate(pieceStringPos);
     }
 
-    public Piece(String initialPiecePos) {
-        setPiecePosition(initialPiecePos);
-    }
-
-    public Piece(PieceColorOptions pieceColor, String initialPiecePos) {
-        setPieceColor(pieceColor);
-        setPiecePosition(initialPiecePos);
-    }
-
-    int parsePosX(String piecePos) {
-        char xChar = piecePos.charAt(0);
-        return X_POSITIONS.indexOf(xChar);
-    }
-
-    int parsePosY(String piecePos) {
-        char yChar = piecePos.charAt(1);
-        return Character.getNumericValue(yChar) - 1;
-    }
-
-    int getPosX() {
-        return posX;
-    }
-
-    int getPosY() {
-        return posY;
-    }
-
-    PieceColorOptions getPieceColor() {
+    public PieceColorOptions getPieceColor() {
         return pieceColor;
-    }
-
-    char getPieceSymbol() {
-        return pieceSymbol;
-    }
-
-    public void setPiecePosition(String newPiecePos) {
-        this.posX = parsePosX(newPiecePos);
-        this.posY = parsePosY(newPiecePos);
     }
 
     public void setPieceColor(PieceColorOptions pieceColor) {
         this.pieceColor = pieceColor;
+    }
+
+    public Coordinate getPieceCoordinate() {
+        return pieceCoordinate;
+    }
+
+    public void setPieceCoordinate(Coordinate pieceCoordinate) {
+        this.pieceCoordinate = pieceCoordinate;
+    }
+
+    public void setPieceCoordinate(String pieceStringPos) {
+        pieceCoordinate = new Coordinate(pieceStringPos);
+    }
+
+    char getPieceSymbol() {
+        return pieceSymbol;
     }
 
     public abstract void setPieceSymbol();

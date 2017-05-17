@@ -9,17 +9,8 @@ public class Rook extends Piece {
 
     }
 
-    public Rook(Piece.PieceColorOptions pieceColor) {
-        super(pieceColor);
-        setPieceSymbol();
-    }
-
-    public Rook(String initialPiecePos) {
-        super(initialPiecePos);
-    }
-
-    public Rook(Piece.PieceColorOptions pieceColor, String initialPiecePos) {
-        super(pieceColor, initialPiecePos);
+    public Rook(Piece.PieceColorOptions pieceColor, String pieceStringPos) {
+        super(pieceColor, pieceStringPos);
         setPieceSymbol();
     }
 

@@ -9,17 +9,8 @@ public class King extends Piece {
 
     }
 
-    public King(Piece.PieceColorOptions pieceColor) {
-        super(pieceColor);
-        setPieceSymbol();
-    }
-
-    public King(String initialPiecePos) {
-        super(initialPiecePos);
-    }
-
-    public King(Piece.PieceColorOptions pieceColor, String initialPiecePos) {
-        super(pieceColor, initialPiecePos);
+    public King(Piece.PieceColorOptions pieceColor, String pieceStringPos) {
+        super(pieceColor, pieceStringPos);
         setPieceSymbol();
     }
 

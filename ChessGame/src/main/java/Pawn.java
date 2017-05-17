@@ -9,17 +9,8 @@ public class Pawn extends Piece {
 
     }
 
-    public Pawn(PieceColorOptions pieceColor) {
-        super(pieceColor);
-        setPieceSymbol();
-    }
-
-    public Pawn(String initialPiecePos) {
-        super(initialPiecePos);
-    }
-
-    public Pawn(PieceColorOptions pieceColor, String initialPiecePos) {
-        super(pieceColor, initialPiecePos);
+    public Pawn(PieceColorOptions pieceColor, String pieceStringPos) {
+        super(pieceColor, pieceStringPos);
         setPieceSymbol();
     }
 

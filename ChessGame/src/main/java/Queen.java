@@ -9,17 +9,8 @@ public class Queen extends Piece {
 
     }
 
-    public Queen(Piece.PieceColorOptions pieceColor) {
-        super(pieceColor);
-        setPieceSymbol();
-    }
-
-    public Queen(String initialPiecePos) {
-        super(initialPiecePos);
-    }
-
-    public Queen(Piece.PieceColorOptions pieceColor, String initialPiecePos) {
-        super(pieceColor, initialPiecePos);
+    public Queen(Piece.PieceColorOptions pieceColor, String pieceStringPos) {
+        super(pieceColor, pieceStringPos);
         setPieceSymbol();
     }
 
