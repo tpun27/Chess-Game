@@ -2,10 +2,15 @@
  * Class for Chess Game
  */
 public class Game {
-    Board chessBoard;
+
+    private Grid chessBoard;
 
     public Game() {
-        chessBoard = new Board();
+        chessBoard = new Grid();
         chessBoard.initializeBoardPieces();
+    }
+
+    public void makeMove(String initialPos, String newPos) {
+        chessBoard.makeMove(initialPos, newPos);
     }
 }

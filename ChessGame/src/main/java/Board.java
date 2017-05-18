@@ -15,6 +15,9 @@ public class Board {
      *
      * 2-Dimensional arrays start from the top left and increase towards the bottom right
      */
+
+    /*
+
     Piece[][] boardArray;
 
     public Board() {
@@ -99,9 +102,6 @@ public class Board {
         System.out.println();
     }
 
-    /*
-     * Up to here in refactoring
-     */
 
     public void movePiece(String initialPiecePos, String newPiecePos) {
         Piece piece = getPieceFromPosition(initialPiecePos);
@@ -581,4 +581,5 @@ public class Board {
         System.out.println("Invalid Move: Not a valid path!");
         return false;
     }
+    */
 }

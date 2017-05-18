@@ -12,26 +12,32 @@ public class Coordinate {
 
     }
 
-    public Coordinate(String chessStringPos) {
+    public Coordinate(String chessStringPos) throws InvalidBoardPositionException {
         setChessStringPos(chessStringPos);
     }
 
-    public Coordinate(int posX, int posY) {
+    public Coordinate(int posX, int posY) throws InvalidBoardPositionException {
         setPosXY(posX, posY);
     }
 
-    public void setChessStringPos(String chessStringPos) {
+    public void setChessStringPos(String chessStringPos) throws InvalidBoardPositionException {
         if (isWithinBoard(chessStringPos)) {
             this.chessStringPos = chessStringPos;
             reCalcChessIntPos();
         }
+        else {
+            throw new InvalidBoardPositionException();
+        }
     }
 
-    public void setPosXY(int posX, int posY) {
+    public void setPosXY(int posX, int posY) throws InvalidBoardPositionException {
         if (isWithinBoard(posX) && isWithinBoard(posY)) {
             this.posX = posX;
             this.posY = posY;
             reCalcChessStrPos();
+        }
+        else {
+            throw new InvalidBoardPositionException();
         }
     }
 
@@ -87,12 +93,21 @@ public class Coordinate {
         return true;
     }
 
-    public void addVals(int xIncr, int yIncr) {
+    // xIncr moves left and right, yIncr moves down and up
+    public int addVals(int xIncr, int yIncr) throws InvalidBoardPositionException {
         int tempX, tempY;
 
         tempX = posX + xIncr;
         tempY = posY + yIncr;
         setPosXY(tempX, tempY);
+
+        // return 1 if posX and posY were incremented and return 0 otherwise
+        if (tempX == posX && tempY == posY) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
     }
 
     public int getPosX() {
