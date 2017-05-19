@@ -12,32 +12,30 @@ public class Coordinate {
 
     }
 
-    public Coordinate(String chessStringPos) throws InvalidBoardPositionException {
+    public Coordinate(String chessStringPos) {
         setChessStringPos(chessStringPos);
     }
 
-    public Coordinate(int posX, int posY) throws InvalidBoardPositionException {
+    public Coordinate(int posX, int posY) {
         setPosXY(posX, posY);
     }
 
-    public void setChessStringPos(String chessStringPos) throws InvalidBoardPositionException {
+    public Coordinate(Coordinate oldCoordinate) {
+        setChessStringPos(oldCoordinate.getChessStringPos());
+    }
+
+    public void setChessStringPos(String chessStringPos) {
         if (isWithinBoard(chessStringPos)) {
             this.chessStringPos = chessStringPos;
             reCalcChessIntPos();
         }
-        else {
-            throw new InvalidBoardPositionException();
-        }
     }
 
-    public void setPosXY(int posX, int posY) throws InvalidBoardPositionException {
+    public void setPosXY(int posX, int posY) {
         if (isWithinBoard(posX) && isWithinBoard(posY)) {
             this.posX = posX;
             this.posY = posY;
             reCalcChessStrPos();
-        }
-        else {
-            throw new InvalidBoardPositionException();
         }
     }
 
@@ -94,7 +92,7 @@ public class Coordinate {
     }
 
     // xIncr moves left and right, yIncr moves down and up
-    public int addVals(int xIncr, int yIncr) throws InvalidBoardPositionException {
+    public int addVals(int xIncr, int yIncr) {
         int tempX, tempY;
 
         tempX = posX + xIncr;

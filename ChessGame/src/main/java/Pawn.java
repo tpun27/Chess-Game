@@ -5,6 +5,8 @@ public class Pawn extends Piece {
     public static final char WHITE_PAWN_SYMBOL = '\u2659';
     public static final char BLACK_PAWN_SYMBOL = '\u265F';
 
+    private int twoSpaceMoveTurnNum;
+
     public Pawn() {
 
     }
@@ -19,5 +21,13 @@ public class Pawn extends Piece {
             pieceSymbol = WHITE_PAWN_SYMBOL;
         else if (pieceColor == PieceColorOptions.BLACK)
             pieceSymbol = BLACK_PAWN_SYMBOL;
+    }
+
+    public int getTwoSpaceMoveTurnNum() {
+        return twoSpaceMoveTurnNum;
+    }
+
+    public void setTwoSpaceMoveTurnNum(int twoSpaceMoveTurnNum) {
+        this.twoSpaceMoveTurnNum = twoSpaceMoveTurnNum;
     }
 }

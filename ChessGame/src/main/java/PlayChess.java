@@ -4,6 +4,6 @@
 public class PlayChess {
     public static void main(String args[]) {
         Game chessGame = new Game();
-        chessGame.makeMove("e2", "e4");
+        chessGame.makeMove("O-O");
     }
 }

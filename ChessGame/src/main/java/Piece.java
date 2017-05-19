@@ -10,6 +10,7 @@ public abstract class Piece {
     protected Coordinate pieceCoordinate;
     protected PieceColorOptions pieceColor;
     protected char pieceSymbol;
+    protected boolean hasMoved;
 
     public Piece() {
 
@@ -18,6 +19,7 @@ public abstract class Piece {
     public Piece(PieceColorOptions pieceColor, String pieceStringPos) {
         setPieceColor(pieceColor);
         setPieceCoordinate(pieceStringPos);
+        hasMoved = false;
     }
 
     public PieceColorOptions getPieceColor() {
@@ -45,5 +47,9 @@ public abstract class Piece {
     }
 
     public abstract void setPieceSymbol();
+
+    public boolean getHasMoved() {
+        return hasMoved;
+    }
 
 }

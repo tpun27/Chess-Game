@@ -5,18 +5,20 @@ public class Grid {
     public static final int VERTICAL_BOARD_LENGTH = 8;
     public static final int HORIZONTAL_BOARD_LENGTH = 8;
     public static final char DEFAULT_PIECE_SYMBOL = '\u2026';
+    public static final String KING_SIDE_CASTLE_STRING = "O-O";
+    public static final String QUEEN_SIDE_CASTLE_STRING = "O-O-O";
 
     private Piece[][] boardArray;
-    private Coordinate whiteKingPos;
-    private Coordinate blackKingPos;
+    private Coordinate whiteKingPos, blackKingPos, promotePawnCoordinate, lastMovedPieceCoordinate, enPassantCoordinate;
     private int turnNumber;
-    private Piece.PieceColorOptions nextMove;
+    private Piece.PieceColorOptions nextMoveColor;
+    private boolean setEnPassantCoordinate;
 
     public Grid() {
         boardArray = new Piece[VERTICAL_BOARD_LENGTH][HORIZONTAL_BOARD_LENGTH];
         initializeBoardPieces();
         turnNumber = 1;
-        nextMove = Piece.PieceColorOptions.WHITE;
+        nextMoveColor = Piece.PieceColorOptions.WHITE;
         whiteKingPos = new Coordinate("e1");
         blackKingPos = new Coordinate("e8");
     }
@@ -98,19 +100,42 @@ public class Grid {
         System.out.println();
     }
 
-    public void makeMove(String initialPos, String newPos) {
+    public void makeMove(String initialPos, String newPos) throws InvalidBoardPositionException, InvalidMoveException {
         Coordinate initialCoordinate, newCoordinate;
 
         if (isInCheckMate()) {
-            System.out.println("Congratulations! " + nextMove + " Loses!");
+            System.out.println("Congratulations! " + nextMoveColor + " Loses!");
         }
 
-        try {
-            initialCoordinate = new Coordinate(initialPos);
-            newCoordinate = new Coordinate(newPos);
-        } catch (InvalidBoardPositionException e) {
-            e.printErrorMsg();
-            return;
+        // verify that user inputs valid chess notation
+        initialCoordinate = new Coordinate(initialPos);
+        newCoordinate = new Coordinate(newPos);
+        if (initialCoordinate.getChessStringPos() == null || newCoordinate.getChessStringPos() == null) {
+            throw new InvalidBoardPositionException();
+        }
+
+        if (!isValidEndpoints(initialCoordinate, newCoordinate)) {
+            throw new InvalidMoveException();
+        }
+
+        if (!isValidPath(initialCoordinate, newCoordinate)) {
+            throw new InvalidMoveException();
+        }
+
+        if (promotePawnCoordinate != null) {
+            promotePawn();
+        }
+
+        turnNumber++;
+    }
+
+    // version of makeMove to handle castling
+    public void makeMove(String castleString) throws InvalidMoveException {
+        if (castleString.equals(KING_SIDE_CASTLE_STRING) || castleString.equals(QUEEN_SIDE_CASTLE_STRING)) {
+            System.out.println("Yay Castling!");
+        }
+        else {
+            throw new InvalidMoveException();
         }
     }
 
@@ -118,27 +143,181 @@ public class Grid {
         return true;
     }
 
-    private boolean isValidDiagonalMove(Coordinate initialCoordinate, Coordinate newCoordinate) {
+    private boolean isValidEndpoints(Coordinate initialCoordinate, Coordinate newCoordinate) {
+        Piece startPiece, endPiece;
 
+        startPiece = getPieceFromCoordinate(initialCoordinate);
+        if (startPiece == null || startPiece.getPieceColor() != nextMoveColor) {
+            return false;
+        }
+
+        endPiece = getPieceFromCoordinate(newCoordinate);
+        if (endPiece != null && endPiece.getPieceColor() == nextMoveColor) {
+            return false;
+        }
+        return true;
     }
 
-    private int diffX(String initialPos, String newPos) {
-        Coordinate initialCoord, newCoord;
-        initialCoord = new Coordinate(initialPos);
-        newCoord = new Coordinate(newPos);
+    private boolean isValidPath(Coordinate initialCoordinate, Coordinate newCoordinate) {
+        Piece piece;
+        piece = getPieceFromCoordinate(initialCoordinate);
 
-        return newCoord.getPosX() - initialCoord.getPosX();
+        if (piece instanceof Pawn) {
+            if (isValidPawnMove(initialCoordinate, newCoordinate)) {
+                return true;
+            }
+        }
+
+        if (piece instanceof Bishop) {
+            if (isValidDiagonalPath(initialCoordinate, newCoordinate)) {
+                return true;
+            }
+        }
+
+        if (piece instanceof Rook) {
+            if (isValidStraightPath(initialCoordinate, newCoordinate)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
-    private int diffY(String initialPos, String newPos) {
-        Coordinate initialCoord, newCoord;
-        initialCoord = new Coordinate(initialPos);
-        newCoord = new Coordinate(newPos);
+    private boolean isValidPawnMove(Coordinate initialCoordinate, Coordinate newCoordinate) {
+        int diffX, diffY, forwardMultiplier;
+        Piece pawnPiece, pieceToCapture;
+        Coordinate betweenCoordinate;
 
-        return newCoord.getPosY() - initialCoord.getPosY();
+        diffX = subtractXCoordinates(initialCoordinate, newCoordinate);
+        diffY = subtractYCoordinates(initialCoordinate, newCoordinate);
+
+        // posY increases for White Pawns and decreases for Black Pawns
+        pawnPiece = getPieceFromCoordinate(initialCoordinate);
+        if (pawnPiece.getPieceColor() == Piece.PieceColorOptions.WHITE) {
+            forwardMultiplier = 1;
+        }
+        else {
+            forwardMultiplier = -1;
+        }
+
+        // diagonal and 2-space forward moves have this property
+        if (Math.abs(diffX) + Math.abs(diffY) == 2) {
+            // 2-space forward move must be unobstructed by another piece
+            if (diffY == 2*forwardMultiplier && !pawnPiece.getHasMoved()) {
+                betweenCoordinate = new Coordinate(initialCoordinate);
+                betweenCoordinate.addVals(0, forwardMultiplier);
+                if (getPieceFromCoordinate(betweenCoordinate) == null) {
+                    return true;
+
+                }
+            }
+            // diagonal move must capture a piece (normal capture or en passant)
+            if (diffY == forwardMultiplier) {
+                // normal capture
+                pieceToCapture = getPieceFromCoordinate(newCoordinate);
+                if (pieceToCapture != null && pieceToCapture.getPieceColor() != nextMoveColor) {
+                    return true;
+                }
+                // En Passant
+                pieceToCapture = getPieceFromCoordinate(enPassantCoordinate);
+                if (pieceToCapture != null) {
+                    return true;
+                }
+            }
+        }
+
+        // 1-space forward move and promotion
+        if (diffX == 0 && diffY == forwardMultiplier) {
+            if (newCoordinate.getPosY() == 1 || newCoordinate.getPosY() == 8) {
+                promotePawnCoordinate = initialCoordinate;
+            }
+            return true;
+        }
+        return false;
     }
 
-    private int calculateDirection(int posDiff) {
+    private boolean isValidDiagonalPath(Coordinate initialCoordinate, Coordinate newCoordinate) {
+        int diffX, diffY, spacesToVerify, xIncrement, yIncrement;
+        Coordinate betweenCoordinate;
+        Piece betweenPiece;
+
+        diffX = subtractXCoordinates(initialCoordinate, newCoordinate);
+        diffY = subtractYCoordinates(initialCoordinate, newCoordinate);
+
+        // verify that path is diagonal
+        if (Math.abs(diffX) != Math.abs(diffY)) {
+            return false;
+        }
+
+        // verify that path is unobstructed by other pieces
+        spacesToVerify = Math.abs(diffX) - 1;
+        xIncrement = calculateIncrement(diffX);
+        yIncrement = calculateIncrement(diffY);
+        betweenCoordinate = new Coordinate(initialCoordinate);
+
+        for (int i = 0; i < spacesToVerify; i++) {
+            betweenCoordinate.addVals(xIncrement, yIncrement);
+            betweenPiece = getPieceFromCoordinate(betweenCoordinate);
+            if (betweenPiece != null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isValidStraightPath(Coordinate initialCoordinate, Coordinate newCoordinate) {
+        int diffX, diffY, spacesToVerify, xIncrement, yIncrement;
+        Coordinate betweenCoordinate;
+        Piece betweenPiece;
+
+        diffX = subtractXCoordinates(initialCoordinate, newCoordinate);
+        diffY = subtractYCoordinates(initialCoordinate, newCoordinate);
+
+        // verify that path is vertical or horizontal
+        if (diffX != 0 && diffY != 0) {
+            return false;
+        }
+
+        if (diffX == 0) {
+            xIncrement = 0;
+            yIncrement = calculateIncrement(diffY);
+            spacesToVerify = Math.abs(diffY) - 1;
+        }
+        else {
+            xIncrement = calculateIncrement(diffX);
+            yIncrement = 0;
+            spacesToVerify = Math.abs(diffX) - 1;
+        }
+
+        // verify that path is unobstructed by other pieces
+        betweenCoordinate = new Coordinate(initialCoordinate);
+        for (int i = 0; i < spacesToVerify; i++) {
+            betweenCoordinate.addVals(xIncrement, yIncrement);
+            betweenPiece = getPieceFromCoordinate(betweenCoordinate);
+            if (betweenPiece != null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void promotePawn() {
+        promotePawnCoordinate = null;
+    }
+
+    private Piece getPieceFromCoordinate(Coordinate pieceCoordinate) {
+        return boardArray[pieceCoordinate.getPosY()][pieceCoordinate.getPosX()];
+    }
+
+    private int subtractXCoordinates(Coordinate initialCoordinate, Coordinate newCoordinate) {
+        return newCoordinate.getPosX() - initialCoordinate.getPosX();
+    }
+
+    private int subtractYCoordinates(Coordinate initialCoordinate, Coordinate newCoordinate) {
+        return newCoordinate.getPosY() - initialCoordinate.getPosY();
+    }
+
+    private int calculateIncrement(int posDiff) {
         if (posDiff > 0) {
             return 1;
         }
