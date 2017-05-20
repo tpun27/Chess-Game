@@ -9,10 +9,10 @@ public class Grid {
     public static final String QUEEN_SIDE_CASTLE_STRING = "O-O-O";
 
     private Piece[][] boardArray;
-    private Coordinate whiteKingPos, blackKingPos, promotePawnCoordinate, lastMovedPieceCoordinate, enPassantCoordinate;
+    private Coordinate whiteKingPos, blackKingPos;
     private int turnNumber;
     private Piece.PieceColorOptions nextMoveColor;
-    private boolean setEnPassantCoordinate;
+    private boolean doEnPassant, doPromotion, setTwoSpaceFlag;
 
     public Grid() {
         boardArray = new Piece[VERTICAL_BOARD_LENGTH][HORIZONTAL_BOARD_LENGTH];
@@ -103,10 +103,6 @@ public class Grid {
     public void makeMove(String initialPos, String newPos) throws InvalidBoardPositionException, InvalidMoveException {
         Coordinate initialCoordinate, newCoordinate;
 
-        if (isInCheckMate()) {
-            System.out.println("Congratulations! " + nextMoveColor + " Loses!");
-        }
-
         // verify that user inputs valid chess notation
         initialCoordinate = new Coordinate(initialPos);
         newCoordinate = new Coordinate(newPos);
@@ -114,19 +110,39 @@ public class Grid {
             throw new InvalidBoardPositionException();
         }
 
-        if (!isValidEndpoints(initialCoordinate, newCoordinate)) {
+        if (!isValidEndpoints(initialCoordinate, newCoordinate, nextMoveColor)) {
             throw new InvalidMoveException();
         }
 
-        if (!isValidPath(initialCoordinate, newCoordinate)) {
+        if (!isValidPath(initialCoordinate, newCoordinate, nextMoveColor)) {
             throw new InvalidMoveException();
         }
 
-        if (promotePawnCoordinate != null) {
-            promotePawn();
+        if (setTwoSpaceFlag || doPromotion || doEnPassant) {
+            // handle these cases
         }
 
-        turnNumber++;
+        // make the move if it does not result in the current player's King being checked
+        if (isMovePossibleWithoutCheck(initialCoordinate, newCoordinate, nextMoveColor)) {
+            Piece movingPiece = getPieceFromCoordinate(initialCoordinate);
+            boardArray[newCoordinate.getPosY()][newCoordinate.getPosX()] = movingPiece;
+            boardArray[initialCoordinate.getPosY()][initialCoordinate.getPosX()] = null;
+            movingPiece.setPieceCoordinate(newCoordinate);
+        } else {
+            throw new InvalidMoveException();
+        }
+
+        // TODO: Complete isMoveBlockable, isInStalemate, Castling, En Passant, Promotion
+        // output a message if the player has won or if the next player is in check
+        nextMoveColor = oppositeColor(nextMoveColor);
+        if (isInCheck(nextMoveColor)) {
+            if (isInCheckMate(nextMoveColor)) {
+                System.out.println("Congratulations! " + oppositeColor(nextMoveColor) + " Wins!");
+            }
+            else {
+                System.out.println(nextMoveColor  + " is in check!");
+            }
+        }
     }
 
     // version of makeMove to handle castling
@@ -139,31 +155,117 @@ public class Grid {
         }
     }
 
-    private boolean isInCheckMate() {
-        return true;
+    private boolean isMovePossibleWithoutCheck(Coordinate initialCoordinate, Coordinate newCoordinate,
+                                   Piece.PieceColorOptions playerColor) {
+        Piece movingPiece, capturedPiece;
+        boolean isPossible;
+
+        movingPiece = getPieceFromCoordinate(initialCoordinate);
+        capturedPiece = getPieceFromCoordinate(newCoordinate);
+        // move Pieces temporarily
+        boardArray[newCoordinate.getPosY()][newCoordinate.getPosX()] = movingPiece;
+        boardArray[initialCoordinate.getPosY()][initialCoordinate.getPosX()] = null;
+        if (isInCheck(playerColor)) {
+            isPossible = false;
+        }
+        else {
+            isPossible = true;
+        }
+
+        // undo Board changes
+        boardArray[newCoordinate.getPosY()][newCoordinate.getPosX()] = capturedPiece;
+        boardArray[initialCoordinate.getPosY()][initialCoordinate.getPosX()] = movingPiece;
+
+        return isPossible;
     }
 
-    private boolean isValidEndpoints(Coordinate initialCoordinate, Coordinate newCoordinate) {
+    private boolean isInCheckMate(Piece.PieceColorOptions playerColor) {
+        if (isKingMovable(playerColor)) {
+            return true;
+        }
+
+        if (isCheckBlockable(playerColor)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isInCheck(Piece.PieceColorOptions playerColor) {
+        Coordinate kingCoordinate, oppCoordinate;
+        kingCoordinate = getKingCoordinate(playerColor);
+
+        for (int i = 0; i < VERTICAL_BOARD_LENGTH; i++) {
+            for (int j = 0; j < HORIZONTAL_BOARD_LENGTH; j++) {
+                oppCoordinate = new Coordinate(j, i);
+
+                if (isValidEndpoints(oppCoordinate, kingCoordinate, playerColor)) {
+                    if (isValidPath(oppCoordinate, kingCoordinate, playerColor)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isKingMovable(Piece.PieceColorOptions playerColor) {
+        Coordinate kingCoordinate, oppCoordinate;
+        int kingPosX, kingPosY;
+
+        kingCoordinate = getKingCoordinate(playerColor);
+        kingPosX = kingCoordinate.getPosX();
+        kingPosY = kingCoordinate.getPosY();
+
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                oppCoordinate = new Coordinate(kingPosX + i, kingPosY + j);
+                // if the position data in oppCoordinate is not empty, the Coordinate is a valid board space
+                if (oppCoordinate.getChessStringPos() != null) {
+                    if (isValidEndpoints(oppCoordinate, kingCoordinate, playerColor)) {
+                        if (isMovePossibleWithoutCheck(oppCoordinate, kingCoordinate, playerColor)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isCheckBlockable(Piece.PieceColorOptions playerColor) {
+        return false;
+    }
+
+    private boolean isValidEndpoints(Coordinate initialCoordinate, Coordinate newCoordinate,
+                                     Piece.PieceColorOptions playerColor) {
         Piece startPiece, endPiece;
 
         startPiece = getPieceFromCoordinate(initialCoordinate);
-        if (startPiece == null || startPiece.getPieceColor() != nextMoveColor) {
+        if (startPiece == null || startPiece.getPieceColor() != playerColor) {
             return false;
         }
 
         endPiece = getPieceFromCoordinate(newCoordinate);
-        if (endPiece != null && endPiece.getPieceColor() == nextMoveColor) {
+        if (endPiece != null && endPiece.getPieceColor() == playerColor) {
             return false;
         }
         return true;
     }
 
-    private boolean isValidPath(Coordinate initialCoordinate, Coordinate newCoordinate) {
+    private boolean isValidPath(Coordinate initialCoordinate, Coordinate newCoordinate,
+                                Piece.PieceColorOptions playerColor) {
         Piece piece;
         piece = getPieceFromCoordinate(initialCoordinate);
 
         if (piece instanceof Pawn) {
-            if (isValidPawnMove(initialCoordinate, newCoordinate)) {
+            if (isValidPawnMove(initialCoordinate, newCoordinate, playerColor)) {
+                return true;
+            }
+        }
+
+        if (piece instanceof Knight) {
+            if (isValidKnightMove(initialCoordinate, newCoordinate)) {
                 return true;
             }
         }
@@ -180,13 +282,29 @@ public class Grid {
             }
         }
 
+        if (piece instanceof Queen) {
+            if (isValidDiagonalPath(initialCoordinate, newCoordinate)) {
+                return true;
+            }
+            if (isValidStraightPath(initialCoordinate, newCoordinate)) {
+                return true;
+            }
+        }
+
+        if (piece instanceof King) {
+            if (isValidKingMove(initialCoordinate, newCoordinate)) {
+                return true;
+            }
+        }
+
         return false;
     }
 
-    private boolean isValidPawnMove(Coordinate initialCoordinate, Coordinate newCoordinate) {
+    private boolean isValidPawnMove(Coordinate initialCoordinate, Coordinate newCoordinate,
+                                    Piece.PieceColorOptions playerColor) {
         int diffX, diffY, forwardMultiplier;
         Piece pawnPiece, pieceToCapture;
-        Coordinate betweenCoordinate;
+        Coordinate betweenCoordinate, enPassantCapturedPawnCoordinate;
 
         diffX = subtractXCoordinates(initialCoordinate, newCoordinate);
         diffY = subtractYCoordinates(initialCoordinate, newCoordinate);
@@ -200,28 +318,40 @@ public class Grid {
             forwardMultiplier = -1;
         }
 
-        // diagonal and 2-space forward moves have this property
+        // 2-space forward moves and diagonal moves have this property
         if (Math.abs(diffX) + Math.abs(diffY) == 2) {
             // 2-space forward move must be unobstructed by another piece
             if (diffY == 2*forwardMultiplier && !pawnPiece.getHasMoved()) {
+                // check if the space in front of the Pawn is occupied by another piece
                 betweenCoordinate = new Coordinate(initialCoordinate);
                 betweenCoordinate.addVals(0, forwardMultiplier);
                 if (getPieceFromCoordinate(betweenCoordinate) == null) {
+                    setTwoSpaceFlag = true;
                     return true;
-
                 }
             }
-            // diagonal move must capture a piece (normal capture or en passant)
+            // if the Pawn moves forward one space, it must also move left or right one space
+            // to have a total displacement of 2
             if (diffY == forwardMultiplier) {
                 // normal capture
                 pieceToCapture = getPieceFromCoordinate(newCoordinate);
-                if (pieceToCapture != null && pieceToCapture.getPieceColor() != nextMoveColor) {
+                if (pieceToCapture != null && pieceToCapture.getPieceColor() != playerColor) {
                     return true;
                 }
                 // En Passant
-                pieceToCapture = getPieceFromCoordinate(enPassantCoordinate);
-                if (pieceToCapture != null) {
-                    return true;
+                if (pieceToCapture == null) {
+                    // the Pawn to capture is one space behind the new position of the moving Pawn
+                    enPassantCapturedPawnCoordinate = new Coordinate(newCoordinate);
+                    enPassantCapturedPawnCoordinate.addVals(0, forwardMultiplier * -1);
+                    pieceToCapture.setPieceCoordinate(enPassantCapturedPawnCoordinate);
+                    if (pieceToCapture instanceof Pawn && pieceToCapture.getPieceColor() != playerColor) {
+                        // En Passant is only valid of the opposing Pawn moved 2 spaces on the previous move
+                        int twoSpaceMoveTurnNum = ((Pawn) pieceToCapture).getTwoSpaceMoveTurnNum();
+                        if (turnNumber == twoSpaceMoveTurnNum + 1) {
+                            doEnPassant = true;
+                            return true;
+                        }
+                    }
                 }
             }
         }
@@ -229,10 +359,40 @@ public class Grid {
         // 1-space forward move and promotion
         if (diffX == 0 && diffY == forwardMultiplier) {
             if (newCoordinate.getPosY() == 1 || newCoordinate.getPosY() == 8) {
-                promotePawnCoordinate = initialCoordinate;
+                doPromotion = true;
             }
             return true;
         }
+        return false;
+    }
+
+    private boolean isValidKnightMove(Coordinate initialCoordinate, Coordinate newCoordinate) {
+        int absDiffX, absDiffY;
+
+        absDiffX = Math.abs(subtractXCoordinates(initialCoordinate, newCoordinate));
+        absDiffY = Math.abs(subtractYCoordinates(initialCoordinate, newCoordinate));
+
+        // all valid Knight moves move 1 space either horizontally or vertically
+        // and 2 spaces in the other direction
+        if (absDiffX + absDiffY == 3) {
+            if ((absDiffX == 1 || absDiffY == 1) && (absDiffX == 2 || absDiffY == 2)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isValidKingMove(Coordinate initialCoordinate, Coordinate newCoordinate) {
+        int absDiffX, absDiffY;
+
+        absDiffX = Math.abs(subtractXCoordinates(initialCoordinate, newCoordinate));
+        absDiffY = Math.abs(subtractYCoordinates(initialCoordinate, newCoordinate));
+
+        // besides castling, the King can move at most one space both horizontally and vertically
+        if (absDiffX >= 1 && absDiffY >= 1) {
+            return true;
+        }
+
         return false;
     }
 
@@ -301,8 +461,13 @@ public class Grid {
         return true;
     }
 
-    private void promotePawn() {
-        promotePawnCoordinate = null;
+    private Coordinate getKingCoordinate(Piece.PieceColorOptions playerColor) {
+        if (playerColor == Piece.PieceColorOptions.WHITE) {
+            return whiteKingPos;
+        }
+        else {
+            return blackKingPos;
+        }
     }
 
     private Piece getPieceFromCoordinate(Coordinate pieceCoordinate) {
@@ -326,6 +491,15 @@ public class Grid {
         }
         else {
             return 0;
+        }
+    }
+
+    private Piece.PieceColorOptions oppositeColor(Piece.PieceColorOptions currentColor) {
+        if (currentColor == Piece.PieceColorOptions.WHITE) {
+            return Piece.PieceColorOptions.BLACK;
+        }
+        else {
+            return Piece.PieceColorOptions.WHITE;
         }
     }
 }
