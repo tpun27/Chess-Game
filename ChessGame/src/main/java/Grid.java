@@ -132,7 +132,7 @@ public class Grid {
             throw new InvalidMoveException();
         }
 
-        // TODO: Complete isMoveBlockable, isInStalemate, Castling, En Passant, Promotion
+        // TODO: Complete isInStalemate, Castling, En Passant, Promotion
         // output a message if the player has won or if the next player is in check
         nextMoveColor = oppositeColor(nextMoveColor);
         if (isInCheck(nextMoveColor)) {
@@ -234,6 +234,65 @@ public class Grid {
     }
 
     private boolean isCheckBlockable(Piece.PieceColorOptions playerColor) {
+        // this function groups both capturing and blocking together even though
+        // capturing the opposing piece is not technically considered blocking a check
+        Coordinate[] coordinatesToBlock;
+        Coordinate kingCoordinate, oppCoordinate, allyCoordinate;
+        int blockCounter, diffX, diffY, spacesToVerify, xIncrement, yIncrement;
+
+        coordinatesToBlock = new Coordinate[VERTICAL_BOARD_LENGTH];
+        kingCoordinate = getKingCoordinate(playerColor);
+        oppCoordinate = null;
+        blockCounter = 0;
+
+        for (int i = 0; i < VERTICAL_BOARD_LENGTH; i++) {
+            for (int j = 0; j < HORIZONTAL_BOARD_LENGTH; j++) {
+                oppCoordinate = new Coordinate(j, i);
+                if (isValidEndpoints(oppCoordinate, kingCoordinate, playerColor)) {
+                    if (isValidPath(oppCoordinate, kingCoordinate, playerColor)) {
+                        coordinatesToBlock[blockCounter] = oppCoordinate;
+                        blockCounter++;
+                        // if there is more than one piece checking the King
+                        // the check is not blockable
+                        break;
+                    }
+                }
+            }
+        }
+
+        diffX = subtractXCoordinates(oppCoordinate, kingCoordinate);
+        diffY = subtractYCoordinates(oppCoordinate, kingCoordinate);
+        xIncrement = calculateIncrement(diffX);
+        yIncrement = calculateIncrement(diffY);
+        spacesToVerify = Math.max(Math.abs(diffX), Math.abs(diffY)) - 1;
+
+        // moving a piece to oppCoordinate capture's the opposing piece
+        // only opposing Bishops, Rooks, and Queens can be blocked
+        if (isValidDiagonalPath(oppCoordinate, kingCoordinate) || isValidStraightPath(oppCoordinate, kingCoordinate)) {
+            for (int i = 0; i < spacesToVerify; i++) {
+                Coordinate betweenCoordinate = new Coordinate(oppCoordinate);
+                betweenCoordinate.addVals(xIncrement, yIncrement);
+                coordinatesToBlock[blockCounter] = betweenCoordinate;
+                blockCounter++;
+            }
+        }
+
+        // loop through all Coordinates in coordinatesToBlock and see if any can block the check
+        for (int i = 0; i < blockCounter; i++) {
+            oppCoordinate = coordinatesToBlock[i];
+            for (int j = 0; j < VERTICAL_BOARD_LENGTH; j++) {
+                for (int k = 0; k < HORIZONTAL_BOARD_LENGTH; k++) {
+                    allyCoordinate = new Coordinate(k, j);
+                    if (isValidEndpoints(allyCoordinate, oppCoordinate, playerColor)) {
+                        if (isValidPath(allyCoordinate, oppCoordinate, playerColor)) {
+                            if (isMovePossibleWithoutCheck(allyCoordinate, oppCoordinate, playerColor)) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         return false;
     }
 
@@ -397,9 +456,7 @@ public class Grid {
     }
 
     private boolean isValidDiagonalPath(Coordinate initialCoordinate, Coordinate newCoordinate) {
-        int diffX, diffY, spacesToVerify, xIncrement, yIncrement;
-        Coordinate betweenCoordinate;
-        Piece betweenPiece;
+        int diffX, diffY;
 
         diffX = subtractXCoordinates(initialCoordinate, newCoordinate);
         diffY = subtractYCoordinates(initialCoordinate, newCoordinate);
@@ -409,20 +466,10 @@ public class Grid {
             return false;
         }
 
-        // verify that path is unobstructed by other pieces
-        spacesToVerify = Math.abs(diffX) - 1;
-        xIncrement = calculateIncrement(diffX);
-        yIncrement = calculateIncrement(diffY);
-        betweenCoordinate = new Coordinate(initialCoordinate);
-
-        for (int i = 0; i < spacesToVerify; i++) {
-            betweenCoordinate.addVals(xIncrement, yIncrement);
-            betweenPiece = getPieceFromCoordinate(betweenCoordinate);
-            if (betweenPiece != null) {
-                return false;
-            }
+        if (isPathUnobstructed(initialCoordinate, newCoordinate)) {
+            return true;
         }
-        return true;
+        return false;
     }
 
     private boolean isValidStraightPath(Coordinate initialCoordinate, Coordinate newCoordinate) {
@@ -438,18 +485,23 @@ public class Grid {
             return false;
         }
 
-        if (diffX == 0) {
-            xIncrement = 0;
-            yIncrement = calculateIncrement(diffY);
-            spacesToVerify = Math.abs(diffY) - 1;
+        if (isPathUnobstructed(initialCoordinate, newCoordinate)) {
+            return true;
         }
-        else {
-            xIncrement = calculateIncrement(diffX);
-            yIncrement = 0;
-            spacesToVerify = Math.abs(diffX) - 1;
-        }
+        return false;
+    }
 
-        // verify that path is unobstructed by other pieces
+    private boolean isPathUnobstructed(Coordinate initialCoordinate, Coordinate newCoordinate) {
+        int diffX, diffY, spacesToVerify, xIncrement, yIncrement;
+        Coordinate betweenCoordinate;
+        Piece betweenPiece;
+
+        diffX = subtractXCoordinates(initialCoordinate, newCoordinate);
+        diffY = subtractYCoordinates(initialCoordinate, newCoordinate);
+        xIncrement = calculateIncrement(diffX);
+        yIncrement = calculateIncrement(diffY);
+        spacesToVerify = Math.max(Math.abs(diffX), Math.abs(diffY)) - 1;
+
         betweenCoordinate = new Coordinate(initialCoordinate);
         for (int i = 0; i < spacesToVerify; i++) {
             betweenCoordinate.addVals(xIncrement, yIncrement);
@@ -459,6 +511,7 @@ public class Grid {
             }
         }
         return true;
+
     }
 
     private Coordinate getKingCoordinate(Piece.PieceColorOptions playerColor) {
