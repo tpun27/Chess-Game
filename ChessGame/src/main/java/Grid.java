@@ -1,6 +1,9 @@
 /**
  * Class for retrofitting Board
  */
+
+import java.util.Scanner;
+
 public class Grid {
     public static final int VERTICAL_BOARD_LENGTH = 8;
     public static final int HORIZONTAL_BOARD_LENGTH = 8;
@@ -12,12 +15,14 @@ public class Grid {
     private int turnNumber;
     private Piece.PieceColorOptions nextMoveColor;
     private boolean doEnPassant, doPromotion, setTwoSpaceFlag;
+    Coordinate gridEnPassantCoordinate;
 
     public Grid() {
         boardArray = new Piece[VERTICAL_BOARD_LENGTH][HORIZONTAL_BOARD_LENGTH];
         initializeBoardPieces();
         turnNumber = 1;
         nextMoveColor = Piece.PieceColorOptions.WHITE;
+        resetPawnFlags();
     }
 
     public void initializeBoardPieces() {
@@ -113,21 +118,26 @@ public class Grid {
             throw new InvalidMoveException();
         }
 
-        if (!isValidPath(initialCoordinate, newCoordinate, nextMoveColor)) {
+        if (!isValidPath(initialCoordinate, newCoordinate, nextMoveColor, true)) {
             System.out.println("!isValidPath"); // debugging
             throw new InvalidMoveException();
         }
 
-        if (setTwoSpaceFlag || doPromotion || doEnPassant) {
-            // handle these cases
-        }
-
         // make the move if it does not result in the current player's King being checked
-        if (isMovePossibleWithoutCheck(initialCoordinate, newCoordinate, nextMoveColor)) {
+        if (isMovePossibleWithoutCheck(initialCoordinate, newCoordinate, nextMoveColor, doEnPassant)) {
             Piece movingPiece = getPieceFromCoordinate(initialCoordinate);
             boardArray[newCoordinate.getPosY()][newCoordinate.getPosX()] = movingPiece;
             boardArray[initialCoordinate.getPosY()][initialCoordinate.getPosX()] = null;
             movingPiece.setPieceCoordinate(newCoordinate);
+            if (doEnPassant) {
+                boardArray[gridEnPassantCoordinate.getPosY()][gridEnPassantCoordinate.getPosX()] = null;
+            }
+            if (setTwoSpaceFlag) {
+                ((Pawn) movingPiece).setTwoSpaceMoveTurnNum(turnNumber);
+            }
+            if (doPromotion) {
+                promotePiece(nextMoveColor, newCoordinate.getChessStringPos());
+            }
         } else {
             System.out.println("!isMovePossibleWithoutCheck"); // debugging
             throw new InvalidMoveException();
@@ -145,6 +155,7 @@ public class Grid {
             }
         }
         turnNumber++;
+        resetPawnFlags();
     }
 
     // version of makeMove to handle castling
@@ -158,15 +169,25 @@ public class Grid {
     }
 
     private boolean isMovePossibleWithoutCheck(Coordinate initialCoordinate, Coordinate newCoordinate,
-                                   Piece.PieceColorOptions playerColor) {
-        Piece movingPiece, capturedPiece;
+                                   Piece.PieceColorOptions playerColor, boolean isEnPassant) {
+        Piece movingPiece, capturedPiece, enPassantPiece = null;
         boolean isPossible;
+        int incrementY;
+        Coordinate enPassantCoordinate = null;
 
         movingPiece = getPieceFromCoordinate(initialCoordinate);
         capturedPiece = getPieceFromCoordinate(newCoordinate);
         // move Pieces temporarily
         boardArray[newCoordinate.getPosY()][newCoordinate.getPosX()] = movingPiece;
         boardArray[initialCoordinate.getPosY()][initialCoordinate.getPosX()] = null;
+
+        // if En Passant occurs, the opposing Pawn must also be removed from the board
+        if (isEnPassant) {
+            enPassantPiece = getPieceFromCoordinate(gridEnPassantCoordinate);
+            boardArray[gridEnPassantCoordinate.getPosY()][gridEnPassantCoordinate.getPosX()] = null;
+        }
+
+
         if (isInCheck(playerColor)) {
             isPossible = false;
         }
@@ -178,8 +199,14 @@ public class Grid {
         boardArray[newCoordinate.getPosY()][newCoordinate.getPosX()] = capturedPiece;
         boardArray[initialCoordinate.getPosY()][initialCoordinate.getPosX()] = movingPiece;
 
+        if (isEnPassant) {
+            boardArray[gridEnPassantCoordinate.getPosY()][gridEnPassantCoordinate.getPosX()] = enPassantPiece;
+        }
+
         return isPossible;
     }
+
+
 
     private boolean isInCheckMate(Piece.PieceColorOptions playerColor) {
         if (isKingMovable(playerColor)) {
@@ -202,7 +229,7 @@ public class Grid {
                 oppCoordinate = new Coordinate(j, i);
 
                 if (isValidEndpoints(oppCoordinate, kingCoordinate, oppositeColor(playerColor))) {
-                    if (isValidPath(oppCoordinate, kingCoordinate, oppositeColor(playerColor))) {
+                    if (isValidPath(oppCoordinate, kingCoordinate, oppositeColor(playerColor), false)) {
                         return true;
                     }
                 }
@@ -225,7 +252,7 @@ public class Grid {
                 // if the position data in oppCoordinate is not empty, the Coordinate is a valid board space
                 if (oppCoordinate.getChessStringPos() != null) {
                     if (isValidEndpoints(kingCoordinate, oppCoordinate, playerColor)) {
-                        if (isMovePossibleWithoutCheck(kingCoordinate, oppCoordinate, playerColor)) {
+                        if (isMovePossibleWithoutCheck(kingCoordinate, oppCoordinate, playerColor, false)) {
                             return true;
                         }
                     }
@@ -251,7 +278,7 @@ public class Grid {
             for (int j = 0; j < HORIZONTAL_BOARD_LENGTH; j++) {
                 oppCoordinate = new Coordinate(j, i);
                 if (isValidEndpoints(oppCoordinate, kingCoordinate, oppositeColor(playerColor))) {
-                    if (isValidPath(oppCoordinate, kingCoordinate, oppositeColor(playerColor))) {
+                    if (isValidPath(oppCoordinate, kingCoordinate, oppositeColor(playerColor), false)) {
                         coordinatesToBlock[blockCounter] = oppCoordinate;
                         blockCounter++;
                         // if there is more than one piece checking the King
@@ -286,8 +313,8 @@ public class Grid {
                 for (int k = 0; k < HORIZONTAL_BOARD_LENGTH; k++) {
                     allyCoordinate = new Coordinate(k, j);
                     if (isValidEndpoints(allyCoordinate, oppCoordinate, playerColor)) {
-                        if (isValidPath(allyCoordinate, oppCoordinate, playerColor)) {
-                            if (isMovePossibleWithoutCheck(allyCoordinate, oppCoordinate, playerColor)) {
+                        if (isValidPath(allyCoordinate, oppCoordinate, playerColor, false)) {
+                            if (isMovePossibleWithoutCheck(allyCoordinate, oppCoordinate, playerColor, false)) {
                                 return true;
                             }
                         }
@@ -315,12 +342,12 @@ public class Grid {
     }
 
     private boolean isValidPath(Coordinate initialCoordinate, Coordinate newCoordinate,
-                                Piece.PieceColorOptions playerColor) {
+                                Piece.PieceColorOptions playerColor, boolean setPawnFlags) {
         Piece piece;
         piece = getPieceFromCoordinate(initialCoordinate);
 
         if (piece instanceof Pawn) {
-            if (isValidPawnMove(initialCoordinate, newCoordinate, playerColor)) {
+            if (isValidPawnMove(initialCoordinate, newCoordinate, playerColor, setPawnFlags)) {
                 return true;
             }
         }
@@ -362,7 +389,7 @@ public class Grid {
     }
 
     private boolean isValidPawnMove(Coordinate initialCoordinate, Coordinate newCoordinate,
-                                    Piece.PieceColorOptions playerColor) {
+                                    Piece.PieceColorOptions playerColor, boolean setPawnFlags) {
         int diffX, diffY, forwardMultiplier;
         Piece pawnPiece, pieceToCapture;
         Coordinate betweenCoordinate, enPassantCapturedPawnCoordinate;
@@ -389,7 +416,7 @@ public class Grid {
                 if (getPieceFromCoordinate(betweenCoordinate) == null) {
                     // check if next space in front is occupied by another piece
                     betweenCoordinate.addVals(0, forwardMultiplier);
-                    if (getPieceFromCoordinate(betweenCoordinate) == null) {
+                    if (getPieceFromCoordinate(betweenCoordinate) == null && setPawnFlags) {
                         setTwoSpaceFlag = true;
                         return true;
                     }
@@ -408,11 +435,12 @@ public class Grid {
                     // the Pawn to capture is one space behind the new position of the moving Pawn
                     enPassantCapturedPawnCoordinate = new Coordinate(newCoordinate);
                     enPassantCapturedPawnCoordinate.addVals(0, forwardMultiplier * -1);
-                    pieceToCapture.setPieceCoordinate(enPassantCapturedPawnCoordinate);
+                    pieceToCapture = getPieceFromCoordinate(enPassantCapturedPawnCoordinate);
                     if (pieceToCapture instanceof Pawn && pieceToCapture.getPieceColor() != playerColor) {
                         // En Passant is only valid of the opposing Pawn moved 2 spaces on the previous move
                         int twoSpaceMoveTurnNum = ((Pawn) pieceToCapture).getTwoSpaceMoveTurnNum();
-                        if (turnNumber == twoSpaceMoveTurnNum + 1) {
+                        if (turnNumber == twoSpaceMoveTurnNum + 1 && setPawnFlags) {
+                            gridEnPassantCoordinate = enPassantCapturedPawnCoordinate;
                             doEnPassant = true;
                             return true;
                         }
@@ -429,7 +457,9 @@ public class Grid {
             if (getPieceFromCoordinate(betweenCoordinate) == null) {
                 // check if Pawn needs to be promoted
                 if (newCoordinate.getPosY() == 1 || newCoordinate.getPosY() == 8) {
-                    doPromotion = true;
+                    if (setPawnFlags) {
+                        doPromotion = true;
+                    }
                 }
                 return true;
             }
@@ -526,6 +556,40 @@ public class Grid {
 
     }
 
+    private char getPromotionInput() {
+        char pieceChar;
+        Scanner pieceScanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.println("Enter piece to promote Pawn to.");
+            System.out.println("Options are: 'Q', 'R', 'K', and 'B'");
+            System.out.println("For Queen, Rook, Knight, and Bishop.");
+            pieceChar = pieceScanner.next().charAt(0);
+            if (pieceChar == 'Q' || pieceChar == 'R' || pieceChar == 'K' || pieceChar == 'B') {
+                break;
+            }
+        }
+        return pieceChar;
+    }
+
+    private void promotePiece(Piece.PieceColorOptions pieceColor, String pieceStringPos) {
+        char pieceChar = getPromotionInput();
+        switch (pieceChar) {
+            case 'Q' :
+                initializePiece(new Queen(), pieceColor, pieceStringPos);
+                break;
+            case 'R' :
+                initializePiece(new Rook(), pieceColor, pieceStringPos);
+                break;
+            case 'K' :
+                initializePiece(new Knight(), pieceColor, pieceStringPos);
+                break;
+            case 'B' :
+                initializePiece(new Bishop(), pieceColor, pieceStringPos);
+                break;
+        }
+    }
+
     private Coordinate getKingCoordinate(Piece.PieceColorOptions playerColor) {
         Piece kingPiece;
         Coordinate kingCoordinate;
@@ -542,6 +606,13 @@ public class Grid {
             }
         }
         return kingCoordinate;
+    }
+
+    private void resetPawnFlags() {
+        doEnPassant = false;
+        doPromotion = false;
+        setTwoSpaceFlag = false;
+        gridEnPassantCoordinate = null;
     }
 
     private Piece getPieceFromCoordinate(Coordinate pieceCoordinate) {
