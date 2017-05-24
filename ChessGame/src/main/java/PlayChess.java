@@ -1,30 +1,48 @@
 /**
  * Main class for playing chess
- * http://www.chessgames.com/perl/chesscollection?cid=1031427
  */
 public class PlayChess {
     public static void main(String args[]) {
-        // Future Simulation:
-        // https://chess.stackexchange.com/questions/12279/famous-pawn-promotion-matches
-
-        // Daniel Fidlow vs Albert Maier
-        // http://www.chessgames.com/perl/chessgame?gid=1250783
+        // Jens Hohmeister vs Tena Frank
+        // http://www.chessgames.com/perl/chessgame?gid=1281617
+        // includes stalemate
         Game chessGame = new Game();
         chessGame.makeMove("d2", "d4");
-        chessGame.makeMove("d7", "d5");
-        chessGame.makeMove("c2", "c4");
-        chessGame.makeMove("e7", "e6");
-        chessGame.makeMove("b1", "c3");
+        chessGame.makeMove("e7", "e5");
+
+        chessGame.makeMove("d1", "d2");
+        chessGame.makeMove("e5", "e4");
+
+        chessGame.makeMove("d2", "f4");
+        chessGame.makeMove("f7", "f5");
+
+        chessGame.makeMove("h2", "h3");
+        chessGame.makeMove("f8", "b4"); // White King in check
+
+        chessGame.makeMove("b1", "d2");
+        chessGame.makeMove("d7", "d6");
+
+        chessGame.makeMove("f4", "h2");
+        chessGame.makeMove("c8", "e6");
+
+        chessGame.makeMove("a2", "a4");
+        chessGame.makeMove("d8", "h4");
+
+        chessGame.makeMove("a1", "a3");
         chessGame.makeMove("c7", "c5");
-        chessGame.makeMove("c4", "d5");
-        chessGame.makeMove("c5", "d4");
-        chessGame.makeMove("d5", "e6");
-        chessGame.makeMove("d4", "c3");
-        chessGame.makeMove("e6", "f7"); // Black King in check
-        chessGame.makeMove("e8", "e7");
-        chessGame.makeMove("f7", "g8"); // Pawn promotion
-        //chessGame.makeMove("h8", "g8");
-        //chessGame.makeMove("c1", "g5"); // Black King in check, Black resigns
+
+        chessGame.makeMove("a3", "g3");
+        chessGame.makeMove("f5", "f4");
+
+        chessGame.makeMove("f2", "f3");
+        chessGame.makeMove("e6", "b3");
+
+        chessGame.makeMove("d4", "d5");
+        chessGame.makeMove("b4", "a5");
+
+        chessGame.makeMove("c2", "c4");
+        chessGame.makeMove("e4", "e3"); // stalemate
+
         chessGame.printBoard();
     }
 }

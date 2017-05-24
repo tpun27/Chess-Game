@@ -129,6 +129,7 @@ public class Grid {
             boardArray[newCoordinate.getPosY()][newCoordinate.getPosX()] = movingPiece;
             boardArray[initialCoordinate.getPosY()][initialCoordinate.getPosX()] = null;
             movingPiece.setPieceCoordinate(newCoordinate);
+            movingPiece.setHasMoved(true);
             if (doEnPassant) {
                 boardArray[gridEnPassantCoordinate.getPosY()][gridEnPassantCoordinate.getPosX()] = null;
             }
@@ -143,7 +144,6 @@ public class Grid {
             throw new InvalidMoveException();
         }
 
-        // TODO: Complete isInStalemate, Castling, En Passant, Promotion
         // output a message if the player has won or if the next player is in check
         nextMoveColor = oppositeColor(nextMoveColor);
         if (isInCheck(nextMoveColor)) {
@@ -154,18 +154,88 @@ public class Grid {
                 System.out.println(nextMoveColor  + " is in check!");
             }
         }
+
+        // TODO: Complete isInStalemate
+        if (isInStaleMate(nextMoveColor)) {
+            System.out.println("It's a draw!");
+        }
         turnNumber++;
         resetPawnFlags();
     }
 
     // version of makeMove to handle castling
     public void makeMove(String castleString) throws InvalidMoveException {
-        if (castleString.equals(KING_SIDE_CASTLE_STRING) || castleString.equals(QUEEN_SIDE_CASTLE_STRING)) {
-            System.out.println("Yay Castling!");
-        }
-        else {
+        Piece kingPiece, rookPiece, betweenPiece;
+        Coordinate kingCoordinate, rookCoordinate, betweenCoordinate, oppCoordinate;
+        int xIncrement, spacesToRook;
+
+        // verify valid castle String O-O or O-O-O
+        if (!castleString.equals(KING_SIDE_CASTLE_STRING) && !castleString.equals(QUEEN_SIDE_CASTLE_STRING)) {
             throw new InvalidMoveException();
         }
+
+        kingCoordinate = getKingCoordinate(nextMoveColor);
+        kingPiece = getPieceFromCoordinate(kingCoordinate);
+
+        // King cannot be in check or have moved already
+        if (isInCheck(nextMoveColor) || kingPiece.getHasMoved()) {
+            throw new InvalidMoveException();
+        }
+
+        if (castleString == KING_SIDE_CASTLE_STRING) {
+            xIncrement = 1;
+            spacesToRook = 3;
+        }
+        else {
+            xIncrement = -1;
+            spacesToRook = 4;
+        }
+
+        rookCoordinate = new Coordinate(kingCoordinate.getPosX() + spacesToRook * xIncrement,
+                kingCoordinate.getPosY());
+        rookPiece = getPieceFromCoordinate(rookCoordinate);
+        // Rook must not have moved already
+        if (!(rookPiece instanceof Rook) || rookPiece.getPieceColor() != nextMoveColor || rookPiece.getHasMoved()) {
+            throw new InvalidMoveException();
+        }
+
+        betweenCoordinate = new Coordinate(kingCoordinate);
+        for (int i = 0; i < 2; i++) {
+            betweenCoordinate.addVals(xIncrement, 0);
+            betweenPiece = getPieceFromCoordinate(betweenCoordinate);
+            // the two spaces to the left or right of the King must be empty
+            if (betweenPiece != null) {
+                throw new InvalidMoveException();
+            }
+            for (int j = 0; j < VERTICAL_BOARD_LENGTH; j++) {
+                for (int k = 0; k < HORIZONTAL_BOARD_LENGTH; k++) {
+                    oppCoordinate = new Coordinate(k, j);
+                    // an opposing piece cannot be attacking the two empty spaces
+                    if (isValidEndpoints(oppCoordinate, betweenCoordinate, oppositeColor(nextMoveColor))) {
+                        if (isValidPath(oppCoordinate, betweenCoordinate, oppositeColor(nextMoveColor), false)) {
+                            throw new InvalidMoveException();
+                        }
+                    }
+                }
+            }
+        }
+
+        // move the King and Rook for castling
+        boardArray[betweenCoordinate.getPosY()][betweenCoordinate.getPosX()] = kingPiece;
+        boardArray[kingCoordinate.getPosY()][kingCoordinate.getPosX()] = null;
+        kingPiece.setPieceCoordinate(betweenCoordinate);
+
+        betweenCoordinate.addVals(xIncrement * -1, 0);
+        boardArray[betweenCoordinate.getPosY()][betweenCoordinate.getPosX()] = rookPiece;
+        boardArray[rookCoordinate.getPosY()][rookCoordinate.getPosX()] = null;
+        rookPiece.setPieceCoordinate(betweenCoordinate);
+
+
+        kingPiece.setHasMoved(true);
+        rookPiece.setHasMoved(true);
+
+        nextMoveColor = oppositeColor(nextMoveColor);
+        turnNumber++;
     }
 
     private boolean isMovePossibleWithoutCheck(Coordinate initialCoordinate, Coordinate newCoordinate,
@@ -325,6 +395,23 @@ public class Grid {
         return false;
     }
 
+    private boolean isInStaleMate(Piece.PieceColorOptions playerColor) {
+        Piece allyPiece;
+        Coordinate allyCoordinate;
+
+        for (int i = 0; i < VERTICAL_BOARD_LENGTH; i++) {
+            for (int j = 0; j < HORIZONTAL_BOARD_LENGTH; j++) {
+                allyCoordinate = new Coordinate(j, i);
+                allyPiece = getPieceFromCoordinate(allyCoordinate);
+                if (allyPiece != null && allyPiece.getPieceColor() == playerColor) {
+                    // see if there is a possible move for the Piece
+                    // Pawns, Bishops, Rooks = 4 Moves; Knight, Queen, King = 8 Moves;
+                }
+            }
+        }
+        return false;
+    }
+
     private boolean isValidEndpoints(Coordinate initialCoordinate, Coordinate newCoordinate,
                                      Piece.PieceColorOptions playerColor) {
         Piece startPiece, endPiece;
@@ -428,6 +515,12 @@ public class Grid {
                 // normal capture
                 pieceToCapture = getPieceFromCoordinate(newCoordinate);
                 if (pieceToCapture != null && pieceToCapture.getPieceColor() != playerColor) {
+                    // check if Pawn needs to be promoted
+                    if (newCoordinate.getPosY() == 0 || newCoordinate.getPosY() == 7) {
+                        if (setPawnFlags) {
+                            doPromotion = true;
+                        }
+                    }
                     return true;
                 }
                 // En Passant
@@ -456,7 +549,7 @@ public class Grid {
             betweenCoordinate.addVals(0, forwardMultiplier);
             if (getPieceFromCoordinate(betweenCoordinate) == null) {
                 // check if Pawn needs to be promoted
-                if (newCoordinate.getPosY() == 1 || newCoordinate.getPosY() == 8) {
+                if (newCoordinate.getPosY() == 0 || newCoordinate.getPosY() == 7) {
                     if (setPawnFlags) {
                         doPromotion = true;
                     }
@@ -563,7 +656,7 @@ public class Grid {
         while (true) {
             System.out.println("Enter piece to promote Pawn to.");
             System.out.println("Options are: 'Q', 'R', 'K', and 'B'");
-            System.out.println("For Queen, Rook, Knight, and Bishop.");
+            System.out.println("For Queen, Rook, Knight, and Bishop:");
             pieceChar = pieceScanner.next().charAt(0);
             if (pieceChar == 'Q' || pieceChar == 'R' || pieceChar == 'K' || pieceChar == 'B') {
                 break;
