@@ -38,10 +38,12 @@ public class PlayChess {
         chessGame.makeMove("e6", "b3");
 
         chessGame.makeMove("d4", "d5");
-        chessGame.makeMove("b4", "a5");
+        chessGame.makeMove("b4", "a5"); // false stalemate to debug
 
+        /*
         chessGame.makeMove("c2", "c4");
         chessGame.makeMove("e4", "e3"); // stalemate
+        */
 
         chessGame.printBoard();
     }
