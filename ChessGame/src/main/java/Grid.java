@@ -460,7 +460,8 @@ public class Grid {
                     if (j == 2 && i != 0) {
                         continue;
                     }
-                    tempCoordinate = new Coordinate(pieceCoordinate.getPosY() + i, pieceCoordinate.getPosX() + j);
+                    tempCoordinate = new Coordinate(pieceCoordinate.getPosX() + i,
+                            pieceCoordinate.getPosY() + j * forwardMultiplier);
                     if (tempCoordinate != null) {
                         coordinateList[coordinateCount] = tempCoordinate;
                         coordinateCount++;
@@ -474,7 +475,7 @@ public class Grid {
             for (int i = -2; i <= 2; i++) {
                 for (int j = -2; j <= 2; j++) {
                     if (Math.abs(i) + Math.abs(j) == 3) {
-                        tempCoordinate = new Coordinate(pieceCoordinate.getPosY() + i, pieceCoordinate.getPosX() + j);
+                        tempCoordinate = new Coordinate(pieceCoordinate.getPosX() + i, pieceCoordinate.getPosY() + j);
                         if (tempCoordinate != null) {
                             coordinateList[coordinateCount] = tempCoordinate;
                             coordinateCount++;
@@ -488,7 +489,7 @@ public class Grid {
         if (piece instanceof Bishop || piece instanceof  Queen || piece instanceof King) {
             for (int i = -1; i <= 1; i += 2) {
                 for (int j = -1; j <= 1; j += 2) {
-                    tempCoordinate = new Coordinate(pieceCoordinate.getPosY() + i, pieceCoordinate.getPosX() + j);
+                    tempCoordinate = new Coordinate(pieceCoordinate.getPosX() + i, pieceCoordinate.getPosY() + j);
                     if (tempCoordinate != null) {
                         coordinateList[coordinateCount] = tempCoordinate;
                         coordinateCount++;
@@ -500,14 +501,14 @@ public class Grid {
         // add four staight moves
         if (piece instanceof Rook || piece instanceof  Queen || piece instanceof Rook) {
             for (int i = -1; i <= 1; i += 2) {
-                tempCoordinate = new Coordinate(pieceCoordinate.getPosY() + i, pieceCoordinate.getPosX());
+                tempCoordinate = new Coordinate(pieceCoordinate.getPosX() + i, pieceCoordinate.getPosY());
                 if (tempCoordinate != null) {
                     coordinateList[coordinateCount] = tempCoordinate;
                     coordinateCount++;
                 }
             }
             for (int j = -1; j <= 1; j += 2) {
-                tempCoordinate = new Coordinate(pieceCoordinate.getPosY(), pieceCoordinate.getPosX() + j);
+                tempCoordinate = new Coordinate(pieceCoordinate.getPosX(), pieceCoordinate.getPosY() + j);
                 if (tempCoordinate != null) {
                     coordinateList[coordinateCount] = tempCoordinate;
                     coordinateCount++;
