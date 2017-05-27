@@ -343,6 +343,7 @@ public class Grid {
         oppCoordinate = null;
         blockCounter = 0;
 
+        outerloop:
         for (int i = 0; i < VERTICAL_BOARD_LENGTH; i++) {
             for (int j = 0; j < HORIZONTAL_BOARD_LENGTH; j++) {
                 oppCoordinate = new Coordinate(j, i);
@@ -352,7 +353,7 @@ public class Grid {
                         blockCounter++;
                         // if there is more than one piece checking the King
                         // the check is not blockable
-                        break;
+                        break outerloop;
                     }
                 }
             }

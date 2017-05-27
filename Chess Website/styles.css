@@ -1,0 +1,47 @@
+#board {
+    border: 1px solid black;
+    width: 480px;
+    height: 480px;
+}
+
+#blackKing {
+    width: 56px;
+    height: 60px;
+    background: url(chess_pieces_640.png) 0 -80px;
+    border: 1px solid black;
+}
+
+#blackQueen {
+    width: 64px;
+    height: 60px;
+    background: url(chess_pieces_640.png) -114px -80px;
+    border: 1px solid black;
+}
+
+#blackRook {
+    width: 46px;
+    height: 54px;
+    background: url(chess_pieces_640.png) -242px -86px;
+    border: 1px solid black;
+}
+
+#blackBishop {
+    width: 58px;
+    height: 64px;
+    background: url(chess_pieces_640.png) -354px -78px;
+    border: 1px solid black;
+}
+
+#blackKnight {
+    width: 54px;
+    height: 56px;
+    background: url(chess_pieces_640.png) -474px -84px;
+    border: 1px solid black;
+}
+
+#blackPawn {
+    width: 42px;
+    height: 54px;
+    background: url(chess_pieces_640.png) -598px -86px;
+    border: 1px solid black;
+}

@@ -279,4 +279,48 @@ public class TestGames {
         chessGame.makeMove("f8", "h8"); // Black king in check
         chessGame.makeMove("h7", "h8"); // stalemate
     }
+
+    // Non-Professional Match
+    // https://www.chess.com/forum/view/game-analysis/shortest-checkmated-game-with-pawn-promotion (Post #1)
+    // includes pawn promotion
+    public void playGame7() {
+        Game chessGame = new Game();
+        chessGame.makeMove("e2", "e4");
+        chessGame.makeMove("d7", "d5");
+
+        chessGame.makeMove("e4", "d5");
+        chessGame.makeMove("g8", "f6");
+
+        chessGame.makeMove("f1", "b5"); // Black King in check
+        chessGame.makeMove("c7", "c6");
+
+        chessGame.makeMove("d5", "c6");
+        chessGame.makeMove("d8", "b6");
+
+        chessGame.makeMove("c6", "b7"); // Black King in check
+        chessGame.makeMove("b6", "b5");
+
+        chessGame.makeMove("b7", "c8"); // promote Pawn to Queen to checkmate Black King
+    }
+
+    // Non-Professional Match
+    // https://www.chess.com/forum/view/game-analysis/shortest-checkmated-game-with-pawn-promotion (Post #14)
+    // includes pawn promotion
+    public void playGame8() {
+        Game chessGame = new Game();
+        chessGame.makeMove("d2", "d3");
+        chessGame.makeMove("e7", "e5");
+
+        chessGame.makeMove("b2", "b3");
+        chessGame.makeMove("e5", "e4");
+
+        chessGame.makeMove("e1", "d2"); // Black King in check
+        chessGame.makeMove("e4", "d3");
+
+        chessGame.makeMove("d2", "c3");
+        chessGame.makeMove("d3", "e2");
+
+        chessGame.makeMove("c3", "b2"); // Black King in check
+        chessGame.makeMove("e2", "d1"); // promote Pawn to Knight to checkmate Black King
+    }
 }
