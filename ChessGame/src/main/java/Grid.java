@@ -11,10 +11,10 @@ public class Grid {
     public static final String KING_SIDE_CASTLE_STRING = "O-O";
     public static final String QUEEN_SIDE_CASTLE_STRING = "O-O-O";
 
-    private Piece[][] boardArray;
-    private int turnNumber;
-    private Piece.PieceColorOptions nextMoveColor;
-    private boolean doEnPassant, doPromotion, setTwoSpaceFlag;
+    protected Piece[][] boardArray;
+    protected int turnNumber;
+    protected Piece.PieceColorOptions nextMoveColor;
+    protected boolean doEnPassant, doPromotion, setTwoSpaceFlag;
     Coordinate gridEnPassantCoordinate;
 
     public Grid() {
@@ -73,7 +73,7 @@ public class Grid {
         initializePiece(new King(), Piece.PieceColorOptions.BLACK, "e8");
     }
 
-    private void initializePiece(Piece piece, Piece.PieceColorOptions pieceColor, String pieceStringPos) {
+    protected void initializePiece(Piece piece, Piece.PieceColorOptions pieceColor, String pieceStringPos) {
         Coordinate pieceCoordinate;
 
         piece.setPieceColor(pieceColor);
@@ -100,6 +100,14 @@ public class Grid {
             System.out.println();
         }
         System.out.println();
+    }
+
+    protected void clearGrid() {
+        for (int i = 0; i < VERTICAL_BOARD_LENGTH; i++) {
+            for (int j = 0; j < HORIZONTAL_BOARD_LENGTH; j++) {
+                boardArray[i][j] = null;
+            }
+        }
     }
 
     public void makeMove(String initialPos, String newPos) throws InvalidBoardPositionException, InvalidMoveException {
@@ -237,7 +245,7 @@ public class Grid {
         turnNumber++;
     }
 
-    private boolean isMovePossibleWithoutCheck(Coordinate initialCoordinate, Coordinate newCoordinate,
+    protected boolean isMovePossibleWithoutCheck(Coordinate initialCoordinate, Coordinate newCoordinate,
                                    Piece.PieceColorOptions playerColor, boolean isEnPassant) {
         Piece movingPiece, capturedPiece, enPassantPiece = null;
         boolean isPossible;
@@ -277,7 +285,7 @@ public class Grid {
 
 
 
-    private boolean isInCheckMate(Piece.PieceColorOptions playerColor) {
+    protected boolean isInCheckMate(Piece.PieceColorOptions playerColor) {
         if (isKingMovable(playerColor)) {
             return false;
         }
@@ -289,7 +297,7 @@ public class Grid {
         return true;
     }
 
-    private boolean isInCheck(Piece.PieceColorOptions playerColor) {
+    protected boolean isInCheck(Piece.PieceColorOptions playerColor) {
         Coordinate kingCoordinate, oppCoordinate;
         kingCoordinate = getKingCoordinate(playerColor);
 
@@ -307,7 +315,7 @@ public class Grid {
         return false;
     }
 
-    private boolean isKingMovable(Piece.PieceColorOptions playerColor) {
+    protected boolean isKingMovable(Piece.PieceColorOptions playerColor) {
         Coordinate kingCoordinate, oppCoordinate;
         int kingPosX, kingPosY;
 
@@ -331,7 +339,7 @@ public class Grid {
         return false;
     }
 
-    private boolean isCheckBlockable(Piece.PieceColorOptions playerColor) {
+    protected boolean isCheckBlockable(Piece.PieceColorOptions playerColor) {
         // this function groups both capturing and blocking together even though
         // capturing the opposing piece is not technically considered blocking a check
         Coordinate[] coordinatesToBlock;
@@ -395,7 +403,7 @@ public class Grid {
         return false;
     }
 
-    private boolean isInStaleMate(Piece.PieceColorOptions playerColor) {
+    protected boolean isInStaleMate(Piece.PieceColorOptions playerColor) {
         Piece allyPiece;
         Coordinate allyCoordinate;
 
@@ -413,7 +421,7 @@ public class Grid {
         return true;
     }
 
-    private boolean isMovable(Piece piece) {
+    protected boolean isMovable(Piece piece) {
         Coordinate[] coordinateList;
         Coordinate pieceCoordinate, tempCoordinate;
         Piece.PieceColorOptions pieceColor;
@@ -437,7 +445,7 @@ public class Grid {
         return false;
     }
 
-    private Coordinate[] calculateMoves(Piece piece) {
+    protected Coordinate[] calculateMoves(Piece piece) {
         Coordinate[] coordinateList;
         Coordinate pieceCoordinate, tempCoordinate;
         Piece.PieceColorOptions pieceColor;
@@ -520,7 +528,7 @@ public class Grid {
     }
 
 
-    private boolean isValidEndpoints(Coordinate initialCoordinate, Coordinate newCoordinate,
+    protected boolean isValidEndpoints(Coordinate initialCoordinate, Coordinate newCoordinate,
                                      Piece.PieceColorOptions playerColor) {
         Piece startPiece, endPiece;
 
@@ -536,7 +544,7 @@ public class Grid {
         return true;
     }
 
-    private boolean isValidPath(Coordinate initialCoordinate, Coordinate newCoordinate,
+    protected boolean isValidPath(Coordinate initialCoordinate, Coordinate newCoordinate,
                                 Piece.PieceColorOptions playerColor, boolean setPawnFlags) {
         Piece piece;
         piece = getPieceFromCoordinate(initialCoordinate);
@@ -583,7 +591,7 @@ public class Grid {
         return false;
     }
 
-    private boolean isValidPawnMove(Coordinate initialCoordinate, Coordinate newCoordinate,
+    protected boolean isValidPawnMove(Coordinate initialCoordinate, Coordinate newCoordinate,
                                     Piece.PieceColorOptions playerColor, boolean setPawnFlags) {
         int diffX, diffY, forwardMultiplier;
         Piece pawnPiece, pieceToCapture;
@@ -668,7 +676,7 @@ public class Grid {
         return false;
     }
 
-    private boolean isValidKnightMove(Coordinate initialCoordinate, Coordinate newCoordinate) {
+    protected boolean isValidKnightMove(Coordinate initialCoordinate, Coordinate newCoordinate) {
         int absDiffX, absDiffY;
 
         absDiffX = Math.abs(subtractXCoordinates(initialCoordinate, newCoordinate));
@@ -684,7 +692,7 @@ public class Grid {
         return false;
     }
 
-    private boolean isValidKingMove(Coordinate initialCoordinate, Coordinate newCoordinate) {
+    protected boolean isValidKingMove(Coordinate initialCoordinate, Coordinate newCoordinate) {
         int absDiffX, absDiffY;
 
         absDiffX = Math.abs(subtractXCoordinates(initialCoordinate, newCoordinate));
@@ -698,7 +706,7 @@ public class Grid {
         return false;
     }
 
-    private boolean isValidDiagonalPath(Coordinate initialCoordinate, Coordinate newCoordinate) {
+    protected boolean isValidDiagonalPath(Coordinate initialCoordinate, Coordinate newCoordinate) {
         int diffX, diffY;
 
         diffX = subtractXCoordinates(initialCoordinate, newCoordinate);
@@ -715,7 +723,7 @@ public class Grid {
         return false;
     }
 
-    private boolean isValidStraightPath(Coordinate initialCoordinate, Coordinate newCoordinate) {
+    protected boolean isValidStraightPath(Coordinate initialCoordinate, Coordinate newCoordinate) {
         int diffX, diffY, spacesToVerify, xIncrement, yIncrement;
         Coordinate betweenCoordinate;
         Piece betweenPiece;
@@ -734,7 +742,7 @@ public class Grid {
         return false;
     }
 
-    private boolean isPathUnobstructed(Coordinate initialCoordinate, Coordinate newCoordinate) {
+    protected boolean isPathUnobstructed(Coordinate initialCoordinate, Coordinate newCoordinate) {
         int diffX, diffY, spacesToVerify, xIncrement, yIncrement;
         Coordinate betweenCoordinate;
         Piece betweenPiece;
@@ -757,7 +765,7 @@ public class Grid {
 
     }
 
-    private char getPromotionInput() {
+    protected char getPromotionInput() {
         char pieceChar;
         Scanner pieceScanner = new Scanner(System.in);
 
@@ -773,7 +781,7 @@ public class Grid {
         return pieceChar;
     }
 
-    private void promotePiece(Piece.PieceColorOptions pieceColor, String pieceStringPos) {
+    protected void promotePiece(Piece.PieceColorOptions pieceColor, String pieceStringPos) {
         char pieceChar = getPromotionInput();
         switch (pieceChar) {
             case 'Q' :
@@ -791,7 +799,7 @@ public class Grid {
         }
     }
 
-    private Coordinate getKingCoordinate(Piece.PieceColorOptions playerColor) {
+    protected Coordinate getKingCoordinate(Piece.PieceColorOptions playerColor) {
         Piece kingPiece;
         Coordinate kingCoordinate;
 
@@ -809,26 +817,26 @@ public class Grid {
         return kingCoordinate;
     }
 
-    private void resetPawnFlags() {
+    protected void resetPawnFlags() {
         doEnPassant = false;
         doPromotion = false;
         setTwoSpaceFlag = false;
         gridEnPassantCoordinate = null;
     }
 
-    private Piece getPieceFromCoordinate(Coordinate pieceCoordinate) {
+    protected Piece getPieceFromCoordinate(Coordinate pieceCoordinate) {
         return boardArray[pieceCoordinate.getPosY()][pieceCoordinate.getPosX()];
     }
 
-    private int subtractXCoordinates(Coordinate initialCoordinate, Coordinate newCoordinate) {
+    protected int subtractXCoordinates(Coordinate initialCoordinate, Coordinate newCoordinate) {
         return newCoordinate.getPosX() - initialCoordinate.getPosX();
     }
 
-    private int subtractYCoordinates(Coordinate initialCoordinate, Coordinate newCoordinate) {
+    protected int subtractYCoordinates(Coordinate initialCoordinate, Coordinate newCoordinate) {
         return newCoordinate.getPosY() - initialCoordinate.getPosY();
     }
 
-    private int calculateIncrement(int posDiff) {
+    protected int calculateIncrement(int posDiff) {
         if (posDiff > 0) {
             return 1;
         }
@@ -840,7 +848,7 @@ public class Grid {
         }
     }
 
-    private Piece.PieceColorOptions oppositeColor(Piece.PieceColorOptions currentColor) {
+    protected Piece.PieceColorOptions oppositeColor(Piece.PieceColorOptions currentColor) {
         if (currentColor == Piece.PieceColorOptions.WHITE) {
             return Piece.PieceColorOptions.BLACK;
         }
