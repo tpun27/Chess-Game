@@ -4,14 +4,16 @@
   <meta charset="UTF-8">
   <title>Chess Game Website</title>
   <link rel="stylesheet" type="text/css" href="styles.css">
+  <script src="myScript.js"></script>
 </head>
 <body>
-  <div id="board"></div>
-  <img id="blackKing" src="transparent.png"><br>
-  <img id="blackQueen" src="transparent.png"><br>
-  <img id="blackRook" src="transparent.png"><br>
-  <img id="blackBishop" src="transparent.png"><br>
-  <img id="blackKnight" src="transparent.png"><br>
-  <img id="blackPawn" src="transparent.png"><br>
+  <h1>Try Dragging The Pieces Onto The Board!</h1>
+  <div id="board" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+  <img id="blackKing" src="transparent.png" draggable="true" ondragstart="drag(event)"><br>
+  <img id="blackQueen" src="transparent.png" draggable="true" ondragstart="drag(event)"><br>
+  <img id="blackRook" src="transparent.png" draggable="true" ondragstart="drag(event)"><br>
+  <img id="blackBishop" src="transparent.png" draggable="true" ondragstart="drag(event)"><br>
+  <img id="blackKnight" src="transparent.png" draggable="true" ondragstart="drag(event)"><br>
+  <img id="blackPawn" src="transparent.png" draggable="true" ondragstart="drag(event)"><br>
 </body>
 </html>

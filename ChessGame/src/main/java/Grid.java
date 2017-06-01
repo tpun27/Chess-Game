@@ -117,17 +117,14 @@ public class Grid {
         initialCoordinate = new Coordinate(initialPos);
         newCoordinate = new Coordinate(newPos);
         if (initialCoordinate.getChessStringPos() == null || newCoordinate.getChessStringPos() == null) {
-            System.out.println("Invalid Coordinate"); // debugging
             throw new InvalidBoardPositionException();
         }
 
         if (!isValidEndpoints(initialCoordinate, newCoordinate, nextMoveColor)) {
-            System.out.println("!isValidEndpoints"); // debugging
             throw new InvalidMoveException();
         }
 
         if (!isValidPath(initialCoordinate, newCoordinate, nextMoveColor, true)) {
-            System.out.println("!isValidPath"); // debugging
             throw new InvalidMoveException();
         }
 
