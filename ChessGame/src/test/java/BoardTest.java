@@ -73,7 +73,102 @@ public class BoardTest {
         gameGrid.initializeBoardPieces();
         gameGrid.makeMove("a3","a5");
     }
-    
+
+    @Test(expected = InvalidMoveException.class)
+    /*
+     * Testing method makeMove() (and indirectly isValidPath()) to see if it suitably returns InvalidMoveException
+     * when a Pawn is moved diagonally without capturing a piece
+     */
+    public void testMakeMove4() throws InvalidBoardPositionException, InvalidMoveException {
+        gameGrid.initializeBoardPieces();
+        gameGrid.makeMove("e2","d3");
+    }
+
+    @Test(expected = InvalidMoveException.class)
+    /*
+     * Testing method makeMove() (and indirectly isValidPath()) to see if it suitably returns InvalidMoveException
+     * when a Pawn is moved 2 spaces after having already moved
+     */
+    public void testMakeMove5() throws InvalidBoardPositionException, InvalidMoveException {
+        gameGrid.initializeBoardPieces();
+        gameGrid.makeMove("e2","e3");
+        gameGrid.makeMove("e7","e6");
+        gameGrid.makeMove("e3","e5");
+    }
+
+    @Test(expected = InvalidMoveException.class)
+    /*
+     * Testing method makeMove() (and indirectly isValidPath()) to see if it suitably returns InvalidMoveException
+     * when a Knight is moved illegally (not a L-shaped move)
+     */
+    public void testMakeMove6() throws InvalidBoardPositionException, InvalidMoveException {
+        gameGrid.initializeBoardPieces();
+        gameGrid.makeMove("g1","f3");
+        gameGrid.makeMove("b8","c6");
+        gameGrid.makeMove("f3","e4");
+    }
+
+    @Test(expected = InvalidMoveException.class)
+    /*
+     * Testing method makeMove() (and indirectly isValidPath()) to see if it suitably returns InvalidMoveException
+     * when a Bishop is moved on a non-diagonal path
+     */
+    public void testMakeMove7() throws InvalidBoardPositionException, InvalidMoveException {
+        gameGrid.initializeBoardPieces();
+        gameGrid.makeMove("f2","h4");
+    }
+
+    @Test(expected = InvalidMoveException.class)
+    /*
+     * Testing method makeMove() (and indirectly isValidPath()) to see if it suitably returns InvalidMoveException
+     * when a Bishop is moved on a diagonal path obstructed by another piece
+     */
+    public void testMakeMove8() throws InvalidBoardPositionException, InvalidMoveException {
+        gameGrid.initializeBoardPieces();
+        gameGrid.makeMove("f2","a6");
+    }
+
+    @Test(expected = InvalidMoveException.class)
+    /*
+     * Testing method makeMove() (and indirectly isValidPath()) to see if it suitably returns InvalidMoveException
+     * when a Rook is moved on a path that is neither vertical or horizontal
+     */
+    public void testMakeMove9() throws InvalidBoardPositionException, InvalidMoveException {
+        gameGrid.initializeBoardPieces();
+        gameGrid.makeMove("h1","c6");
+    }
+
+    @Test(expected = InvalidMoveException.class)
+    /*
+     * Testing method makeMove() (and indirectly isValidPath()) to see if it suitably returns InvalidMoveException
+     * when a Rook is moved on a straight path obstructed by another piece
+     */
+    public void testMakeMove10() throws InvalidBoardPositionException, InvalidMoveException {
+        gameGrid.initializeBoardPieces();
+        gameGrid.makeMove("h1","h6");
+    }
+
+    @Test(expected = InvalidMoveException.class)
+    /*
+     * Testing method makeMove() (and indirectly isValidPath()) to see if it suitably returns InvalidMoveException
+     * when a Queen is moved illegally (neither a straight nor diagonal path)
+     */
+    public void testMakeMove11() throws InvalidBoardPositionException, InvalidMoveException {
+        gameGrid.initializeBoardPieces();
+        gameGrid.makeMove("d1","e3");
+    }
+
+    @Test(expected = InvalidMoveException.class)
+    /*
+     * Testing method makeMove() (and indirectly isValidPath()) to see if it suitably returns InvalidMoveException
+     * when a King is moved more than one space
+     */
+    public void testMakeMove12() throws InvalidBoardPositionException, InvalidMoveException {
+        gameGrid.initializeBoardPieces();
+        gameGrid.makeMove("e1","e3");
+    }
+
+
     @After
     public void tearDown() {
         gameGrid = null;
