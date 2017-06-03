@@ -168,6 +168,24 @@ public class BoardTest {
         gameGrid.makeMove("e1","e3");
     }
 
+    @Test
+    /*
+     * Testing method isInCheck() to see if it suitably returns true
+     * Board setup from: https://en.wikipedia.org/wiki/Check_(chess)
+     */
+    public void testIsInCheck1() {
+        gameGrid.initializePiece(new King(), Piece.PieceColorOptions.WHITE, "e6");
+        gameGrid.initializePiece(new Rook(), Piece.PieceColorOptions.WHITE, "c6");
+        gameGrid.initializePiece(new Knight(), Piece.PieceColorOptions.WHITE, "b4");
+        gameGrid.initializePiece(new Pawn(), Piece.PieceColorOptions.WHITE, "d7");
+        gameGrid.initializePiece(new King(), Piece.PieceColorOptions.BLACK, "h8");
+        gameGrid.initializePiece(new Rook(), Piece.PieceColorOptions.BLACK, "f1");
+        gameGrid.initializePiece(new Bishop(), Piece.PieceColorOptions.BLACK, "a2");
+        assertEquals(true, gameGrid.isInCheck(Piece.PieceColorOptions.WHITE));
+    }
+
+
+
 
     @After
     public void tearDown() {

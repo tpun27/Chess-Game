@@ -15,12 +15,12 @@ public class HelperFunctionTest {
      * Testing method getKingCoordinate() to see if it suitably returns the correct Coordinate
      * of the King
      */
-    public void testMakeMove1() throws InvalidBoardPositionException, InvalidMoveException {
+    public void testGetKingCoordinate1() throws InvalidBoardPositionException, InvalidMoveException {
         gameGrid.initializeBoardPieces();
         gameGrid.makeMove("e2","e4");
         gameGrid.makeMove("e7","e5");
         gameGrid.makeMove("e1","e2");
-        assertEquals("e2", gameGrid.getKingCoordinate(Piece.PieceColorOptions.WHITE));
+        assertEquals("e2", gameGrid.getKingCoordinate(Piece.PieceColorOptions.WHITE).getChessStringPos());
     }
 
 
